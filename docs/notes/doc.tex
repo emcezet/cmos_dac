@@ -1,0 +1,119 @@
+\documentclass[10pt,a4paper]{report}
+ \usepackage{booktabs}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+
+\usepackage{polski}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true, %set true if you want colored links
+	linktoc=all,     %set to all if you want both sections and subsections linked
+	linkcolor=red,  %choose some color if you want links to stand out
+}
+
+\usepackage{tikz}
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
+\usepackage{color, colortbl}
+
+
+
+\usepackage{geometry}
+\geometry{legalpaper, margin=1in}
+
+\definecolor{Gray}{gray}{0.9}
+\setcounter{secnumdepth}{4}
+
+\title{Notatki do pracy inżynierskiej. \\ 8-bitowy przetwornik cyfrowo-analogowy.}
+\date{2018}
+\author{Michal Czyz \\ student, WETI PG\\}
+
+\begin{document}
+	\maketitle
+	
+	\tableofcontents
+	\newpage
+	\chapter{Preliminaria.}
+	\section{Abstract.}
+	\section{Abstrakt.}
+	\section{Podziękowania.}
+	
+	\chapter{Przetworniki cyfrowo-analogowe.}
+	\section{Wstęp.}
+	\subsection{Zasada działania.}
+	\subsection{Podział konwerterów.}
+	\subsubsection{Szeregowe.}
+	\subsubsection{Równoległe.}
+	\subsubsection{Nyquista.}
+	\subsubsection{Nadpróbkujące.}
+	
+	\section{Przestrzeń projektowa.}
+	\subsection{title}
+	\subsection{Miary jakości.}
+	\subsubsection{Liniowość.}
+	\subsubsection{Rozdzielczość.}
+	\subsubsection{Monotoniczność.}
+	\subsubsection{Inne miary.}
+	
+	\chapter{Schemat elektryczny.}
+	\section{Schemat/opis.}
+	\subsection{Dobór kryteriów prowadzących do tego rozwiązania.}
+	\subsection{Schemat.}
+	\section{Dowód poprawności działania.}
+
+	\chapter{Pomiary parametrów.}
+	\section{środowisko.}
+	\section{Układ testujący do wyznaczenia x.}
+	\section{Układ testujący do wyznaczenia y.}
+	\section{Układ testujący do wyznaczenia z.}
+	
+	\chapter{Realizacja topografii.}
+	\section{środowisko.}
+	\section{Technologia.}
+	\section{Hierarchizacja projektu.}
+	\subsection{Moduł 1.}
+	\subsection{Moduł 2.}
+	\subsection{Moduł 3.}
+	\subsection{Moduł 4.}
+	
+	\section{Pomiary parametrów po ekstrakcji.}
+	\subsection{Sposób pomiaru}
+	Jak przed ekstrakcją.
+	\subsection{Rozmiar układu, liczba tranzystorów.}
+
+	\chapter{Podsumowanie}
+	\section{Weryfikacja osiągniętych celów.}
+	
+	\chapter{Dodatek A.}
+	\section{Niepowiązane z pracą.}
+	Może jakieś wnioski lub uwagi najdą w trakcie prac.
+	
+	\begin{thebibliography}{9}
+		%%moje z knovela
+		\bibitem{integconv} 
+		Jespers, Paul G.A.. (2001). 
+		\textit{Integrated Converters - D to A and A to D Architectures, Analysis and Simulation.}
+		Oxford University Press
+		
+		\bibitem{cmosanal} 
+		Allen, Phillip E. Holberg, Douglas R.. (2012)  
+		\textit{CMOS Analog Circuit Design (3rd Edition). }
+		Oxford University Press.
+		
+		\bibitem{vlsidesign} 
+		Das, Debaprasad. (2015). .
+		\textit{VLSI Design (2nd edition)}
+		Oxford University Press.
+		%%z opisu tematu od profa
+		
+	\end{thebibliography}
+
+\end{document}
