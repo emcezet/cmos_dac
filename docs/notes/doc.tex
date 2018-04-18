@@ -29,12 +29,22 @@
 \usepackage{geometry}
 \geometry{legalpaper, margin=1in}
 
+\newcommand{\img}[4]{
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=#1 cm, keepaspectratio=true]{#2}
+			\caption{#3}
+			\label{#4}
+		\end{center}
+	\end{figure}
+}
+
 \definecolor{Gray}{gray}{0.9}
 \setcounter{secnumdepth}{4}
 
-\title{Notatki do pracy inżynierskiej. \\ 8-bitowy przetwornik cyfrowo-analogowy.}
+\title{Notatki do pracy inżynierskiej. \\ 8-bitowy przetwornik cyfrowo-analogowy. \\ STAN : pre-alpha}
 \date{2018}
-\author{Michal Czyz \\ student, WETI PG\\}
+\author{Michał Czyż \\ student, WETI PG}
 
 \begin{document}
 	\maketitle
@@ -44,25 +54,77 @@
 	\chapter{Preliminaria.}
 	\section{Abstract.}
 	\section{Abstrakt.}
+	W pracy został zaprojektowany taki-a-taki układ, który jest super!
 	\section{Podziękowania.}
 	
 	\chapter{Przetworniki cyfrowo-analogowe.}
 	\section{Wstęp.}
+	Tematem pracy jest przetwornik C/A, który:
+	\begin{itemize}
+		\item zasilanie 1.8V
+		\item CMOS 180nm
+		\item czas konwersji poniżej 4ms
+		\item 8bitowy
+	\end{itemize}
+
 	\subsection{Zasada działania.}
+	Zadaniem przetwornika cyfrowo-analogowego jest konwersja sygnału elektrycznego z dziedziny cyfrowej do analogowej. W tej pracy układ przetwarza 8-bitowe liczby na wartość napięcia od zera do zasilania.
+	
+	Sygnał wejściowy to w ogólności N-bitowe słowo $B_{in}={b_{n-1},b_{n-2},...,b_0}$. Wszystkie możliwe N-bitowe liczby tworzą przestrzeń $D$. Napięcie wyjściowe może przyjąć każdą wartość z zakresu napięć zasilania $V_{out}=f(B_{in})$, gdzie:
+
+	\begin{align}
+	\mathcal{D} \ni  \mathcal{B}_{in} &\to \mathcal{V}_{out} \in \left(V_{gnd}, V_{ref} \right)
+	\end{align}
+	
+	
+	\img{20}{../visio/blokschkonca.pdf}{Blokowy schemat konwertera C/A.}{blokschkonca}
+	
+	Nie jest to pełny obrazek, może być potrzebny blok S\&H na wyjściu, jeżeli konwersja mocno szumi i przechodzi przez wiele stanów.
+	
 	\subsection{Podział konwerterów.}
-	\subsubsection{Szeregowe.}
-	\subsubsection{Równoległe.}
-	\subsubsection{Nyquista.}
-	\subsubsection{Nadpróbkujące.}
+	Za \cite{cmosanal} i \cite{integconv} konwertery C/A dzieli sie na:
+	\begin{itemize}
+		\item statyczne i dynamiczne
+		\item rownolegle i szeregowe
+		\item nadprobkujace ( w tym delta-sigma )
+		\item rampfunction, dual-slope?
+	\end{itemize}
+	Statyczny - po wpisaniu liczby do rejestru wejściowego napięcie wyjściowe jest utrzymywane do zaniku zasilania.
+	Dynamiczny - przeciwnie niż statyczny, napięcie wyjściowe po pewnym czasie zanika, np. ze wzgledu na rozładowanie kondensatorów, więc wymagają odświeżania.
+	Rownoległy przetwarza każdy bit rejestru wejściowego jednocześnie.
+	Szeregowy przetwarza zawartość rejestru wejściowego bit po bicie.
+	Nadprobkujacy, rampfunction, dual-slope???
+	
 	
 	\section{Przestrzeń projektowa.}
-	\subsection{title}
-	\subsection{Miary jakości.}
-	\subsubsection{Liniowość.}
-	\subsubsection{Rozdzielczość.}
-	\subsubsection{Monotoniczność.}
-	\subsubsection{Inne miary.}
+	Znając już mnogość klasyfikacji należy się zastanowić co powoduje, że dany konwerter będzie się lepiej nadawał w danej aplikacji, więc trzeba wprowadzić miary jakości i sposoby testowania/mierzenia.
+	\subsection{Miary jakości i testy.}
+	Konwerter moze zostac scharakteryzowany przez
+	\begin{itemize}
+		\item Zakres napięć wyjściowych/zasilania
+		\item STATIC 
+		\subitem Rozdzielczosc
+		\subitem efektywna liczba bitów 9.1-13 z \cite{cmosanal} ???
+		\item STATIC ERROR
+		\subitem offset error
+		\subitem gain error
+		\subitem quantization error
+		\subitem integral nonlinearity
+		\subitem differential nonlinearity
+		\subitem monotonicity
+		\item DYNAMIC
+		\subitem conversion speed
+		\subitem 
+	\end{itemize}
+	Na poziomie symulacji można je wyznaczyć, więc trzeba przygotować stanowiska pomiarowe.
 	
+	Tzw. test in-out wymaga stworzenia modelu generatora słow cyfrowych, dac jako dut, modelu adc do przetwarzania wyjscia dac i pomiaru roznicy liczby wejsciowej z wyjsciowa adc. Problem: jak stworzyc model adc? Pomiar uznaje sie za dobry, gdy adc jest n+2 bitowe. Model adc jest niepotrzebny, bo symulacja daje wynik jako 32-bitowe float.
+	
+	Test widmowy - generator funkcji cyfrowy. wyjście na analizator widmowy - analiza transient daca i potem fourier
+	
+	
+	
+	  
 	\chapter{Schemat elektryczny.}
 	\section{Schemat/opis.}
 	\subsection{Dobór kryteriów prowadzących do tego rozwiązania.}
@@ -92,10 +154,12 @@
 	\chapter{Podsumowanie}
 	\section{Weryfikacja osiągniętych celów.}
 	
-	\chapter{Dodatek A.}
-	\section{Niepowiązane z pracą.}
-	Może jakieś wnioski lub uwagi najdą w trakcie prac.
 	
+	\appendix
+	\chapter{Synteza rejestru cyfrowego przy pomocy Cadence Virtuoso.}
+	\chapter{Badanie wzmacniacza (a może czegoś innego) analogowego z Cadence.}
+	
+.
 	\begin{thebibliography}{9}
 		%%moje z knovela
 		\bibitem{integconv} 
@@ -112,8 +176,11 @@
 		Das, Debaprasad. (2015). .
 		\textit{VLSI Design (2nd edition)}
 		Oxford University Press.
-		%%z opisu tematu od profa
-		
+		%%z opisu tematu od profa allen cmos sie pokrywa z moim wyborem
+		\bibitem{plassche} 
+		R. Plassche (2001). 
+		\textit{Scalone przetworniki analogowo-cyfrowe i cyfrowo-analogowe,}
+		WKŁ 2001
 	\end{thebibliography}
 
 \end{document}
