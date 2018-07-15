@@ -13,6 +13,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage[polish]{babel}
 
+\usepackage{indentfirst}
+
 \usepackage{hyperref}
 \hypersetup{
 	colorlinks=true, %set true if you want colored links
@@ -23,8 +25,6 @@
 \usepackage{tikz}
 \def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
 \usepackage{color, colortbl}
-
-
 
 \usepackage{geometry}
 \geometry{legalpaper, margin=1in}
@@ -42,7 +42,7 @@
 \definecolor{Gray}{gray}{0.9}
 \setcounter{secnumdepth}{4}
 
-\title{Notatki do pracy inżynierskiej. \\ 8-bitowy przetwornik cyfrowo-analogowy. \\ STAN : pre-alpha}
+\title{Notatki do pracy inżynierskiej. \\ 8-bitowy przetwornik cyfrowo-analogowy. \\ STAN : alpha}
 \date{2018}
 \author{Michał Czyż \\ student, WETI PG}
 
@@ -53,75 +53,90 @@
 	\newpage
 	\chapter{Preliminaria.}
 	\section{Abstract.}
+	{	Goal of this thesis... \textcolor{red}{NA KONIEC UZUPEŁNIĆ.} }
+
 	\section{Abstrakt.}
-	W pracy został zaprojektowany taki-a-taki układ, który jest super!
+	{	Celem niniejszej pracy jest zaprojektowanie schematu i topografii masek 8-bitowego przetwornika cyfrowo analogowego w technologii CMOS AMS 180nm. \textcolor{red}{NA KONIEC UZUPEŁNIĆ.} }
+	
 	\section{Podziękowania.}
+	{	Dziękujemy wszystkim ... . \textcolor{red}{NA KONIEC UZUPEŁNIĆ} }
 	
-	\chapter{Przetworniki cyfrowo-analogowe.}
-	\section{Wstęp.}
-	Tematem pracy jest przetwornik C/A, który:
-	\begin{itemize}
-		\item zasilanie 1.8V
-		\item CMOS 180nm
-		\item czas konwersji poniżej 4ms
-		\item 8bitowy
-	\end{itemize}
-
-	\subsection{Zasada działania.}
-	Zadaniem przetwornika cyfrowo-analogowego jest konwersja sygnału elektrycznego z dziedziny cyfrowej do analogowej. W tej pracy układ przetwarza 8-bitowe liczby na wartość napięcia od zera do zasilania.
+	\chapter{Wstęp.}
+	{	Konwertery danych z postaci cyfrowej na analogową (i odwrotnie) są niezbędną częścią systemów elektronicznych, ponieważ umożliwiają komunikację pomiędzy zewnętrznym, analogowym światem i cyfrowymi rdzeniami układów krzemowych \cite{integconv}. Do przykładowych zastosowań konwerterów należą m.in. generowanie sygnału wideo, audio, sterowanie silnikami, radarami. }
 	
-	Sygnał wejściowy to w ogólności N-bitowe słowo $B_{in}={b_{n-1},b_{n-2},...,b_0}$. Wszystkie możliwe N-bitowe liczby tworzą przestrzeń $D$. Napięcie wyjściowe może przyjąć każdą wartość z zakresu napięć zasilania $V_{out}=f(B_{in})$, gdzie:
+	{	Dotychczas powstały architektury konwerterów \cite{integconv} \cite{cmosanal}:
+		\begin{itemize}
+			\item szeregowa. Konwersja odbywa się bit po bicie. Z reguły wolniejsze, ale pobierają mniej mocy.
+			\item równoległa. Konwersja odbywa się dla wszystkich bitów równolegle.
+			\item segmentowe - z wykorzystaniem "pod-konwerterów".
+			\item Nadpróbkujące, również nazywane konwerterami Nyquista. Wolniejsze, ale dokładne.
+			\item Konwertery skalowane \textcolor{red}{(czy skalujące?)} wykorzystują ważone odniesienia w postaci prądów, napięć lub ładunków.
+			\item Statyczne. Sygnał wyjściowy jest stały, jeżeli nie zmienia się syngał wejściowy, przeciwnie do: dynamiczne.
+		\end{itemize} }
 
-	\begin{align}
-	\mathcal{D} \ni  \mathcal{B}_{in} &\to \mathcal{V}_{out} \in \left(V_{gnd}, V_{ref} \right)
-	\end{align}
+	{	Do podstawowych parametrów przetwornika należą (jest tego dużo więcej):
+		\begin{itemize}
+			\item Dokładność bezwzględna.
+			\item Dokładność względna.
+			\item Nieliniowość różniczkowa (DNL).
+			\item Nieliniowość całkowa (INL). 
+			\item Rozdzielczość.
+			\item Przesunięcie zera.
+			\item Współczynnik wrażliwości temperaturowej.
+			\item Stosunek sygnału do szumu.
+			\item Monotoniczność.
+			\item Maksymalna częstotliwośc próbkowania,
+			\item PSRR.
+		\end{itemize} 
+	}
+
+	{	Kluczowym dla poprawnego działania konwertera skalowanego jest stabilne źródło napięcia odniesienia. Układy wytwarzane w technologii CMOS są wrażliwe na rorzut technologiczny parametrów elementów elektronicznych, zmieniają się ich właściwości pod wpływem zmian temperatury lub zmian wartości napięcia zasilania. Aby zapewnić stabilność napięcia odniesienia stosuje się układ bandgap. }
+
+	\chapter{Zaprojektowany konwerter.}
+	{	Narzucone wymagania na przetwornik:
+		\begin{itemize}
+			\item zasilanie 1.8V,
+			\item CMOS AMS 180nm,
+			\item szybkość konwersji powyżej 4MS,
+			\item 8-bitowy.
+		\end{itemize} }
+	
+	{	Dodatkowe wymagania:
+		\begin{itemize}
+			\item Sygnał wyjściowy to napięcie o zakresie co najmniej 0-1V.
+			\item Dopuszczalne obciążenie: rezystancyjne co najmniej $50\Omega$.
+		\end{itemize}
+	}
+
+	{	Do zrealizowania wybrano konwerter skalujący prąd. Ogólny schemat takiego konwertera:
+		\img{20}{../visio/currentscale.pdf}{Schemat konwertera skalującego prąd}{currentscale}
+	}
+
+	{	Podstawowe i niezbędne bloki konwertera skalującego prąd to:
+		\begin{itemize}
+			\item Blok konwersji.
+			\item Rejestr wejściowy.
+			\item Źródło napięcia odniesienia typu Bandgap.
+		\end{itemize}
+		Dodatkowymi blokami mogą być:
+		\begin{itemize}
+			\item Cyfrowy interfejs, np. SPI, I2C.
+			\item Blok kontroli (wysyłanie komend przez interfejs)
+			\item Programowalne wzmocnienie wyjścia.
+			\item Blok autokalibracji.
+		\end{itemize}	
+	}
+	{
+		
+	}
+	Zadaniem przetwornika cyfrowo-analogowego jest konwersja sygnału elektrycznego z dziedziny cyfrowej do analogowej.
 	
 	
 	\img{20}{../visio/blokschkonca.pdf}{Blokowy schemat konwertera C/A.}{blokschkonca}
 	
-	Nie jest to pełny obrazek, może być potrzebny blok S\&H na wyjściu, jeżeli konwersja mocno szumi i przechodzi przez wiele stanów.
+	Nie jest to pełny obrazek, może być potrzebny blok S\&H na wyjściu, jeżeli konwersja mocno szumi i przechodzi przez wiele stanów. \textcolor{red}{Podać referencję.}
 	
-	\subsection{Podział konwerterów.}
-	Za \cite{cmosanal} i \cite{integconv} konwertery C/A dzieli sie na:
-	\begin{itemize}
-		\item statyczne i dynamiczne
-		\item rownolegle i szeregowe
-		\item nadprobkujace ( w tym delta-sigma )
-		\item rampfunction, dual-slope?
-	\end{itemize}
-	Statyczny - po wpisaniu liczby do rejestru wejściowego napięcie wyjściowe jest utrzymywane do zaniku zasilania.
-	Dynamiczny - przeciwnie niż statyczny, napięcie wyjściowe po pewnym czasie zanika, np. ze wzgledu na rozładowanie kondensatorów, więc wymagają odświeżania.
-	Rownoległy przetwarza każdy bit rejestru wejściowego jednocześnie.
-	Szeregowy przetwarza zawartość rejestru wejściowego bit po bicie.
-	Nadprobkujacy, rampfunction, dual-slope???
-	
-	
-	\section{Przestrzeń projektowa.}
-	Znając już mnogość klasyfikacji należy się zastanowić co powoduje, że dany konwerter będzie się lepiej nadawał w danej aplikacji, więc trzeba wprowadzić miary jakości i sposoby testowania/mierzenia.
-	\subsection{Miary jakości i testy.}
-	Konwerter moze zostac scharakteryzowany przez
-	\begin{itemize}
-		\item Zakres napięć wyjściowych/zasilania
-		\item STATIC 
-		\subitem Rozdzielczosc
-		\subitem efektywna liczba bitów 9.1-13 z \cite{cmosanal} ???
-		\item STATIC ERROR
-		\subitem offset error
-		\subitem gain error
-		\subitem quantization error
-		\subitem integral nonlinearity
-		\subitem differential nonlinearity
-		\subitem monotonicity
-		\item DYNAMIC
-		\subitem conversion speed
-		\subitem 
-	\end{itemize}
-	Na poziomie symulacji można je wyznaczyć, więc trzeba przygotować stanowiska pomiarowe.
-	
-	Tzw. test in-out wymaga stworzenia modelu generatora słow cyfrowych, dac jako dut, modelu adc do przetwarzania wyjscia dac i pomiaru roznicy liczby wejsciowej z wyjsciowa adc. Problem: jak stworzyc model adc? Pomiar uznaje sie za dobry, gdy adc jest n+2 bitowe. Model adc jest niepotrzebny, bo symulacja daje wynik jako 32-bitowe float.
-	
-	Test widmowy - generator funkcji cyfrowy. wyjście na analizator widmowy - analiza transient daca i potem fourier
-	
+
 	
 	
 	  
@@ -156,9 +171,7 @@
 	
 	
 	\appendix
-	\chapter{Synteza rejestru cyfrowego przy pomocy Cadence Virtuoso.}
-	\chapter{Badanie wzmacniacza (a może czegoś innego) analogowego z Cadence.}
-	
+	%insert chapters	
 .
 	\begin{thebibliography}{9}
 		%%moje z knovela
