@@ -12,6 +12,9 @@ Project
 
 
 --docs
-    Documentation for project.
+
+	Documentation for project.
+
 --hw
-    Schematic files and tests.
+
+	Schematic files and tests.
