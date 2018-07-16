@@ -42,7 +42,7 @@
 \definecolor{Gray}{gray}{0.9}
 \setcounter{secnumdepth}{4}
 
-\title{Notatki do pracy inżynierskiej. \\ 8-bitowy przetwornik cyfrowo-analogowy. \\ STAN : alpha}
+\title{Notatki do pracy inżynierskiej. \\ 8-bitowy przetwornik cyfrowo analogowy w technologii CMOS. \\ STAN : alpha}
 \date{2018}
 \author{Michał Czyż \\ student, WETI PG}
 
@@ -62,18 +62,21 @@
 	{	Dziękujemy wszystkim ... . \textcolor{red}{NA KONIEC UZUPEŁNIĆ} }
 	
 	\chapter{Wstęp.}
-	{	Konwertery danych z postaci cyfrowej na analogową (i odwrotnie) są niezbędną częścią systemów elektronicznych, ponieważ umożliwiają komunikację pomiędzy zewnętrznym, analogowym światem i cyfrowymi rdzeniami układów krzemowych \cite{integconv}. Do przykładowych zastosowań konwerterów należą m.in. generowanie sygnału wideo, audio, sterowanie silnikami, radarami. }
+	{	Konwertery sygnałów z postaci cyfrowej na analogową (i odwrotnie) są niezbędną częścią systemów elektronicznych, ponieważ umożliwiają komunikację pomiędzy zewnętrznym, analogowym światem i cyfrowymi rdzeniami układów krzemowych \cite{integconv}. Do przykładowych zastosowań konwerterów należą m.in. generowanie sygnału wizyjnego, fonicznego lub sygnałów sterowania np. dla układów radarowych czy konwerterów mocy. }
 	
-	{	Dotychczas powstały architektury konwerterów \cite{integconv} \cite{cmosanal}:
-		\begin{itemize}
-			\item szeregowa. Konwersja odbywa się bit po bicie. Z reguły wolniejsze, ale pobierają mniej mocy.
-			\item równoległa. Konwersja odbywa się dla wszystkich bitów równolegle.
-			\item segmentowe - z wykorzystaniem "pod-konwerterów".
-			\item Nadpróbkujące, również nazywane konwerterami Nyquista. Wolniejsze, ale dokładne.
-			\item Konwertery skalowane \textcolor{red}{(czy skalujące?)} wykorzystują ważone odniesienia w postaci prądów, napięć lub ładunków.
-			\item Statyczne. Sygnał wyjściowy jest stały, jeżeli nie zmienia się syngał wejściowy, przeciwnie do: dynamiczne.
-		\end{itemize} }
+	\section{Architektury konwerterów C/A. \cite{plassche}}
+	{	\textbf{Przetwornik z modulacją szerokości impulsów} dokonuje porównania słowa cyfrowego z liniowo rosnącym cyfrowym słowem odniesienia. Wygenerowany w ten sposób impuls o szerokości zależnej od wartości przetwarzanego słowa poddawany jest filtracji dolnoprzepustowej. Do wad tego rozwiązania należą mała szybkośc przetwarzania i konieczność stosowania filtów o wysokim tłumieniu w paśmie zaporowym. }
+	
+	{	\textbf{Przetwornik integracyjny z całkowaniem liniowym} również wykorzystuje mechanizm porównywania liczb cyfrowych do wygenerowania sygnału o modulowanej szerkości, który jest poddawany scałkowaniu, a następnie spróbkowaniu przez układ próbkująco pamiętający. Celem zwiększenia szybkości działania układu dokonuje się podzielenia słowa bitowego na część starszą i młodszą, a przetwarzanie obu części odbywa się równolegle. }
+	
+	{	\textbf{Przetworniki sieciowe ze skalowaniem} dokonują zamiany słowa cyfrowego na napięcia, prądy lub ładunki proporcjonalne (ważone) do wartości tego słowa. Sygnały z poszczególnych gałęzi sieci są sumowane, a sygnał wyjściowy podlega konwersji i/lub kondycjonowaniu do zadanej formy. Udaje się uzyskać rozdzielczość do 10-bitów.}
+	
+	{	\textbf{Przetwornik z kształtowaniem szumu} wykorzystuje filtry nadpróbkujące, układy kształtowania szumu, 1-bitowy przetwornik C/A i analogowy filtr wyjściowy. Uzyskuje się wysoką precyzję 16-18 bitów. \textcolor{red}{Czy przetworniki Nyquista, $\Sigma \Delta$ i nadpróbkujące to dokładnie to samo, bo tak to wygląda?} }
+	
+	\section{Klasyfikacje.}
+	{	Dokonuje się kilku podziałów konwerterów. Ze względu na liczbę przetwarzanych bitów wyróżnia się: \textbf{szeregowe}, czyli takie, które dokonują konwersji słowa cyfrowego bit po bicie oraz \textbf{równoległe}, czyli takie, które dokonują konwersji całego słowa jednocześnie. Jeżeli sygnał wyjściowy przetwornika jest stały w czasie dla ustalonego i podtrzymywanego słowa cyfrowego, to nazywamy taki przetwornik \textbf{statycznym}, w przeciwieństwie do przetworników \textbf{dynamicznych}, których sygnał wyjściowy zanika i wymaga odświeżania. }
 
+	\section{Parametry przetworników C/A.}
 	{	Do podstawowych parametrów przetwornika należą (jest tego dużo więcej):
 		\begin{itemize}
 			\item Dokładność bezwzględna.
@@ -93,6 +96,7 @@
 	{	Kluczowym dla poprawnego działania konwertera skalowanego jest stabilne źródło napięcia odniesienia. Układy wytwarzane w technologii CMOS są wrażliwe na rorzut technologiczny parametrów elementów elektronicznych, zmieniają się ich właściwości pod wpływem zmian temperatury lub zmian wartości napięcia zasilania. Aby zapewnić stabilność napięcia odniesienia stosuje się układ bandgap. }
 
 	\chapter{Zaprojektowany konwerter.}
+	\section{Wymagania projektowe.}
 	{	Narzucone wymagania na przetwornik:
 		\begin{itemize}
 			\item zasilanie 1.8V,
@@ -107,17 +111,18 @@
 			\item Dopuszczalne obciążenie: rezystancyjne co najmniej $50\Omega$.
 		\end{itemize}
 	}
-
+	\section{Wybór architektury.}
 	{	Do zrealizowania wybrano konwerter skalujący prąd. Ogólny schemat takiego konwertera:
 		\img{20}{../visio/currentscale.pdf}{Schemat konwertera skalującego prąd}{currentscale}
 	}
 
-	{	Podstawowe i niezbędne bloki konwertera skalującego prąd to:
+	{	Podstawowe i niezbędne bloki konwertera to:
 		\begin{itemize}
 			\item Blok konwersji.
 			\item Rejestr wejściowy.
 			\item Źródło napięcia odniesienia typu Bandgap.
 		\end{itemize}
+		\img{20}{../visio/blokschkonca.pdf}{Blokowy schemat konwertera C/A.}{blokschkonca}
 		Dodatkowymi blokami mogą być:
 		\begin{itemize}
 			\item Cyfrowy interfejs, np. SPI, I2C.
@@ -126,24 +131,12 @@
 			\item Blok autokalibracji.
 		\end{itemize}	
 	}
-	{
-		
-	}
-	Zadaniem przetwornika cyfrowo-analogowego jest konwersja sygnału elektrycznego z dziedziny cyfrowej do analogowej.
-	
-	
-	\img{20}{../visio/blokschkonca.pdf}{Blokowy schemat konwertera C/A.}{blokschkonca}
-	
-	Nie jest to pełny obrazek, może być potrzebny blok S\&H na wyjściu, jeżeli konwersja mocno szumi i przechodzi przez wiele stanów. \textcolor{red}{Podać referencję.}
-	
 
-	
-	
-	  
 	\chapter{Schemat elektryczny.}
-	\section{Schemat/opis.}
-	\subsection{Dobór kryteriów prowadzących do tego rozwiązania.}
-	\subsection{Schemat.}
+	\section{Układ bandgap.}
+	\section{Sięć ważonych prądów.}
+	\section{Wyjściowy wzmacniacz transkonduktancyjny.}
+
 	\section{Dowód poprawności działania.}
 
 	\chapter{Pomiary parametrów.}
@@ -152,7 +145,7 @@
 	\section{Układ testujący do wyznaczenia y.}
 	\section{Układ testujący do wyznaczenia z.}
 	
-	\chapter{Realizacja topografii.}
+	\chapter{Implementacja.}
 	\section{środowisko.}
 	\section{Technologia.}
 	\section{Hierarchizacja projektu.}
