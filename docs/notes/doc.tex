@@ -96,41 +96,35 @@
 	{	Kluczowym dla poprawnego działania konwertera skalowanego jest stabilne źródło napięcia odniesienia. Układy wytwarzane w technologii CMOS są wrażliwe na rorzut technologiczny parametrów elementów elektronicznych, zmieniają się ich właściwości pod wpływem zmian temperatury lub zmian wartości napięcia zasilania. Aby zapewnić stabilność napięcia odniesienia stosuje się układ bandgap. }
 
 	\chapter{Zaprojektowany konwerter.}
-	\section{Wymagania projektowe.}
-	{	Narzucone wymagania na przetwornik:
+	\section{Metodologia projektowania.}
+	{	Projekt układu scalonego rozpoczyna się od sformułowania wymagań (specyfikacji) urządzenia lub systemu. W temacie niniejszej pracy 	sformułowano następujące wymagania na przetwornik:
 		\begin{itemize}
-			\item zasilanie 1.8V,
-			\item CMOS AMS 180nm,
-			\item szybkość konwersji powyżej 4MS,
-			\item 8-bitowy.
+			\item zasilany ze źródła napięcia stałego o wartości 1.8V,
+			\item zaprojektowany w technologii CMOS AMS 180nm,
+			\item osiąga szybkość konwersji powyżej 4 milionów próbek na sekundę (MSPS),
+			\item ma 8-bitów rozdzielczości.
+		\end{itemize} 
+		Ponadto, projektant doprecyzował następujące parametry:
+		\begin{itemize}
+			\item sygnał wyjściowy to sygnał napięciowy o zakresie co najmniej od 0V do 1V,
+			\item dopuszczalne obciążenie ma charakter rezystancyjny o minimalnej wartości $50\Omega$.
 		\end{itemize} }
 	
-	{	Dodatkowe wymagania:
-		\begin{itemize}
-			\item Sygnał wyjściowy to napięcie o zakresie co najmniej 0-1V.
-			\item Dopuszczalne obciążenie: rezystancyjne co najmniej $50\Omega$.
-		\end{itemize}
-	}
-	\section{Wybór architektury.}
-	{	Do zrealizowania wybrano konwerter skalujący prąd. Ogólny schemat takiego konwertera:
-		\img{20}{../visio/currentscale.pdf}{Schemat konwertera skalującego prąd}{currentscale}
-	}
+	{	Na podstawie wymagań należy zaproponować architekturę urządzenia na podstawie analizy obecnego stanu wiedzy technicznej lub przeprowadzić zgrubne (często ręczne) obliczenia, potwierdzające spełnienie wymagań. Po zapoznaniu się z literaturą wybór padł na konwerter skalujący prąd. Najistotniejsze motywacje tego wyboru to prostota schematu, wysoka szybkość działania oraz fakt, że poprzednie prace uzyskały do 10 bitów rozdzielczości.	}
+	
+	{	Blokowy schemat konwertera skalującego prąd znajduje sie na rysunku \ref{currentscale}. \textcolor{red}{Na rysunku są 4 prądy, można uogólnić ten obrazek lub dostosować do 8-bit?} Zasada działania jest następująca: słowo cyfrowe jest sygnałem sterującym sięć, która może wytwarzać prądy o różnych wartościach. Typowo, przypisuje sie prądom wagi dwójkowe, a kolejne bity słowa cyfrowego decydują o włączeniu/wyłączeniu gałęzi prądowej, co oznacza, że po zsumowaniu prądów wyjściowych otrzymujemy prąd o wartości  bezwzględnej równej wartości zakodowanej w słowie cyfrowym. W zależności od wymagań na sygnał wyjściowy, dokonuje się konwersji prądu wyjściowego na napięcie. 
+		\img{20}{../visio/currentscale.pdf}{Schemat blokowy konwertera skalującego prąd}{currentscale}	}
 
-	{	Podstawowe i niezbędne bloki konwertera to:
+	{	Typową praktyką jest doposażenie konwertera w rejestr wejściowy, aby ułatwić integrację przetwornika z innymi, cyfrowymi blokami systemu. W przypadku projektowania przetworników, które samodzielnie tworzą układ scalony umieszcza się także standardowe interfejsy cyfrowe, np. SPI lub I2C. Ponadto, na rynku dostępne są konwertery wyposażone w rejestr kontrolny, który umożliwia wykorzystanie dodatkowych funkcjonalności np. programowania wzmocnienia sygnału wyjściowego, autotestowania lub autokalibracji. \textcolor{red}{Czy na pewno tak się pisze autocosie?}
+		\img{20}{../visio/blokschkonca.pdf}{Blokowy schemat konwertera C/A.}{blokschkonca} }
+
+	{	Poprawnie zaprojektowane układy scalone charakteryzują się niewrażliwością na 3 istotne czynniki:
 		\begin{itemize}
-			\item Blok konwersji.
-			\item Rejestr wejściowy.
-			\item Źródło napięcia odniesienia typu Bandgap.
+			\item rozrzut technologiczny (precyzja wykonania) parametrów elementów elektronicznych,
+			\item zmiana temperatury,
+			\item odchyłki napięcia zasilania od wartości nominalnej.
 		\end{itemize}
-		\img{20}{../visio/blokschkonca.pdf}{Blokowy schemat konwertera C/A.}{blokschkonca}
-		Dodatkowymi blokami mogą być:
-		\begin{itemize}
-			\item Cyfrowy interfejs, np. SPI, I2C.
-			\item Blok kontroli (wysyłanie komend przez interfejs)
-			\item Programowalne wzmocnienie wyjścia.
-			\item Blok autokalibracji.
-		\end{itemize}	
-	}
+		\textcolor{red}{Weźmiemy bandgap, wyjaśnić po co i jak. Matching tranzystorów.}	}
 
 	\chapter{Schemat elektryczny.}
 	\section{Układ bandgap.}
