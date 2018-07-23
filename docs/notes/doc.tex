@@ -64,7 +64,16 @@
 	\chapter{Wstęp.}
 	{	Konwertery sygnałów z postaci cyfrowej na analogową (i odwrotnie) są niezbędną częścią systemów elektronicznych, ponieważ umożliwiają komunikację pomiędzy zewnętrznym, analogowym światem i cyfrowymi rdzeniami układów krzemowych \cite{integconv}. Do przykładowych zastosowań konwerterów należą m.in. generowanie sygnału wizyjnego, fonicznego lub sygnałów sterowania np. dla układów radarowych czy konwerterów mocy. }
 	
-	\section{Architektury konwerterów C/A. \cite{plassche}}
+	{	Sygnałem wejściowym dla 8 bitowego przetwornika cyfrowo analogowego jest słowo cyfrowe $\mathcal{B}=\{b_7,b_6,...,b_0\}$. Bit $b_7$ nosi miano najstarszego bitu (MSB - Most Siginificant Bit), a bit $b_0$ to najmłodszy (LSB - Least Siginificant Bit). Sygnał wyjściowy to analogowe napięcie lub prąd $\mathcal{S}$ przeskalowany przez sygnał referencyjny $V_{ref}$. Zależność pomiędzy sygnałem wyjściowym i wejściowym to wtedy:
+	\begin{equation}
+	\mathcal{S} = V_{ref}\mathcal{B} = V_{ref} {\sum_{k=0}^{7}b_k2^k}
+	\end{equation}
+
+	}
+	
+	\section{Architektury konwerterów C/A. \cite{cmosanal} \cite{plassche}}
+	{	Dokonuje się kilku podziałów konwerterów. Ze względu na liczbę przetwarzanych bitów wyróżnia się: \textbf{szeregowe}, czyli takie, które dokonują konwersji słowa cyfrowego bit po bicie oraz \textbf{równoległe}, czyli takie, które dokonują konwersji całego słowa jednocześnie. Jeżeli sygnał wyjściowy przetwornika jest stały w czasie dla ustalonego i podtrzymywanego słowa cyfrowego, to nazywamy taki przetwornik \textbf{statycznym}, w przeciwieństwie do przetworników \textbf{dynamicznych}, których sygnał wyjściowy zanika i wymaga odświeżania. }
+	
 	{	\textbf{Przetwornik z modulacją szerokości impulsów} dokonuje porównania słowa cyfrowego z liniowo rosnącym cyfrowym słowem odniesienia. Wygenerowany w ten sposób impuls o szerokości zależnej od wartości przetwarzanego słowa poddawany jest filtracji dolnoprzepustowej. Do wad tego rozwiązania należą mała szybkośc przetwarzania i konieczność stosowania filtów o wysokim tłumieniu w paśmie zaporowym. }
 	
 	{	\textbf{Przetwornik integracyjny z całkowaniem liniowym} również wykorzystuje mechanizm porównywania liczb cyfrowych do wygenerowania sygnału o modulowanej szerkości, który jest poddawany scałkowaniu, a następnie spróbkowaniu przez układ próbkująco pamiętający. Celem zwiększenia szybkości działania układu dokonuje się podzielenia słowa bitowego na część starszą i młodszą, a przetwarzanie obu części odbywa się równolegle. }
@@ -73,27 +82,41 @@
 	
 	{	\textbf{Przetwornik z kształtowaniem szumu} wykorzystuje filtry nadpróbkujące, układy kształtowania szumu, 1-bitowy przetwornik C/A i analogowy filtr wyjściowy. Uzyskuje się wysoką precyzję 16-18 bitów. \textcolor{red}{Czy przetworniki Nyquista, $\Sigma \Delta$ i nadpróbkujące to dokładnie to samo, bo tak to wygląda?} }
 	
-	\section{Klasyfikacje.}
-	{	Dokonuje się kilku podziałów konwerterów. Ze względu na liczbę przetwarzanych bitów wyróżnia się: \textbf{szeregowe}, czyli takie, które dokonują konwersji słowa cyfrowego bit po bicie oraz \textbf{równoległe}, czyli takie, które dokonują konwersji całego słowa jednocześnie. Jeżeli sygnał wyjściowy przetwornika jest stały w czasie dla ustalonego i podtrzymywanego słowa cyfrowego, to nazywamy taki przetwornik \textbf{statycznym}, w przeciwieństwie do przetworników \textbf{dynamicznych}, których sygnał wyjściowy zanika i wymaga odświeżania. }
+	{	\textbf{Przetwornik szeregowy z redystrybucją ładunku} wykorzystuje układ dwóch połączonych równolegle identycznych kondensatorów i kilka kluczy. Kondensator wejściowy jest ładowany lub rozładowywany w zależności od wartości kolejnych bitów, a następnie dołączany do kondensatora wyjściowego, co pozwala na dodanie lub odjęcie ładunku, a więc zwiększenie lub zmniejszenie wartości napięcia wyjściowego.
+	}
+	
+	{	\textbf{Przetwornik algorytmiczny potokowy} składa się z sumatorów i bloków opóźnienia, które pozwalają na dodawanie przeskalowanych napięć referencyjnych w kolejnych blokach. \textcolor{red}{przepisać} }
 
-	\section{Parametry przetworników C/A.}
-	{	Do podstawowych parametrów przetwornika należą (jest tego dużo więcej):
+	{	\textbf{Przetwornik algorytmiczny iteracyjny} w weźle układu próbkująco pamiętającego dodaje kolejne bity. \textcolor{red}{przepisać} }
+
+	{ 	\textbf{Przetworniki segmentowe} to przetworniki składające się z połączenia dwóch lub więcej przetworników. Zazwyczaj łączone są przetowrniki o małej liczbie bitów w większe, aby zwiększyć rozdzielczość. }
+
+	\section{Parametry statyczne przetworników C/A.(\textcolor{red}{Podać tylko te parametry, które będę mierzył.})}
+	{	\textbf{Rozdzielczość} określa minimalną zmianę sygnału wyjściowego dla kolejnych słów cyfrowych. Odpowiada stosunkowi pełnego zakresu napięcia wyjściowego do liczby poziomów (różnych słów cyfrowych).
+	}
+
+	{	\textbf{Dokładność względna} to odchylenie wartości sygnału wyjściowego w stanie ustalonym od teoretycznej prostej wyznaczonej przez pełny zakres przetwarzania. }
+
+	{	Sygnał wyjściowy przetwornika \textbf{monotonicznego} nie zmniejsza się dla wzrostu wejściowego słowa cyfrowego. }
+
+	{	\textbf{Przesunięcie zera} to wartość sygnału wyjściowego dla sygnału wejściowego o wartości zero. }
+
+	{ 	\textbf{Nieliniowość całkowa INL} to wartość bezwzględna sumy błędów nieliniowości dodatnich (lub ujemnych).}
+	
+	{ 	\textbf{Nieliniowość różniczkowa DNL} to zmiana sygnału wyjściowego w stosunku do LSB przy przejściu o jedno słowo cyfrowe obliczone dla każdego przejścia osobno. }
+
+	\section{Parametry dynamiczne przetworników C/A.}
+	{ \textbf{\textcolor{red}{Wymienić resztę.}}
+	}
+
+	{
 		\begin{itemize}
-			\item Dokładność bezwzględna.
-			\item Dokładność względna.
-			\item Nieliniowość różniczkowa (DNL).
-			\item Nieliniowość całkowa (INL). 
-			\item Rozdzielczość.
-			\item Przesunięcie zera.
-			\item Współczynnik wrażliwości temperaturowej.
 			\item Stosunek sygnału do szumu.
-			\item Monotoniczność.
 			\item Maksymalna częstotliwośc próbkowania,
 			\item PSRR.
 		\end{itemize} 
 	}
 
-	{	Kluczowym dla poprawnego działania konwertera skalowanego jest stabilne źródło napięcia odniesienia. Układy wytwarzane w technologii CMOS są wrażliwe na rorzut technologiczny parametrów elementów elektronicznych, zmieniają się ich właściwości pod wpływem zmian temperatury lub zmian wartości napięcia zasilania. Aby zapewnić stabilność napięcia odniesienia stosuje się układ bandgap. }
 
 	\chapter{Zaprojektowany konwerter.}
 	\section{Metodologia projektowania.}
@@ -110,7 +133,7 @@
 			\item dopuszczalne obciążenie ma charakter rezystancyjny o minimalnej wartości $50\Omega$.
 		\end{itemize} }
 	
-	{	Na podstawie wymagań należy zaproponować architekturę urządzenia na podstawie analizy obecnego stanu wiedzy technicznej lub przeprowadzić zgrubne (często ręczne) obliczenia, potwierdzające spełnienie wymagań. Po zapoznaniu się z literaturą wybór padł na konwerter skalujący prąd. Najistotniejsze motywacje tego wyboru to prostota schematu, wysoka szybkość działania oraz fakt, że poprzednie prace uzyskały do 10 bitów rozdzielczości.	}
+	{	Na podstawie wymagań należy zaproponować architekturę urządzenia na podstawie analizy obecnego stanu wiedzy technicznej lub przeprowadzić zgrubne (często ręczne) obliczenia, potwierdzające spełnienie wymagań. Po zapoznaniu się z literaturą wybór padł na konwerter skalujący prąd. Najistotniejsze motywacje tego wyboru to prostota schematu, wysoka szybkość działania \cite{cmosanal} oraz fakt, że poprzednie prace uzyskały do 10 bitów rozdzielczości \cite{plassche}.	Autorzy \cite{cmosanal} jako główne wady podają duży rozmiar oraz duży rozrzut wielkości elementów.}
 	
 	{	Blokowy schemat konwertera skalującego prąd znajduje sie na rysunku \ref{currentscale}. \textcolor{red}{Na rysunku są 4 prądy, można uogólnić ten obrazek lub dostosować do 8-bit?} Zasada działania jest następująca: słowo cyfrowe jest sygnałem sterującym sięć, która może wytwarzać prądy o różnych wartościach. Typowo, przypisuje sie prądom wagi dwójkowe, a kolejne bity słowa cyfrowego decydują o włączeniu/wyłączeniu gałęzi prądowej, co oznacza, że po zsumowaniu prądów wyjściowych otrzymujemy prąd o wartości  bezwzględnej równej wartości zakodowanej w słowie cyfrowym. W zależności od wymagań na sygnał wyjściowy, dokonuje się konwersji prądu wyjściowego na napięcie. 
 		\img{20}{../visio/currentscale.pdf}{Schemat blokowy konwertera skalującego prąd}{currentscale}	}
@@ -124,8 +147,12 @@
 			\item zmiana temperatury,
 			\item odchyłki napięcia zasilania od wartości nominalnej.
 		\end{itemize}
-		\textcolor{red}{Weźmiemy bandgap, wyjaśnić po co i jak. Matching tranzystorów.}	}
+		\textcolor{red}{Weźmiemy bandgap, wyjaśnić po co i jak. Matching tranzystorów. Przepisać ten fragment.}	}
+	
+	{	Kluczowym dla poprawnego działania konwertera skalowanego jest stabilne źródło napięcia odniesienia. Układy wytwarzane w technologii CMOS są wrażliwe na rorzut technologiczny parametrów elementów elektronicznych, zmieniają się ich właściwości pod wpływem zmian temperatury lub zmian wartości napięcia zasilania. Aby zapewnić stabilność napięcia odniesienia stosuje się układ bandgap. }
 
+	{	Teoretyczne LSB u nas to 1/256 V. Zwrócić uwagę, czy po implementacji na wyjściu rejestru wyjściowego będą impulsy szpilkowe (glitch). Gdyby były one większe niż LSB to jest problem.
+		}
 	\chapter{Schemat elektryczny.}
 	\section{Układ bandgap.}
 	\section{Sięć ważonych prądów.}
@@ -173,7 +200,7 @@
 		Oxford University Press.
 		
 		\bibitem{vlsidesign} 
-		Das, Debaprasad. (2015). .
+		Das, Debaprasad. (2015).
 		\textit{VLSI Design (2nd edition)}
 		Oxford University Press.
 		%%z opisu tematu od profa allen cmos sie pokrywa z moim wyborem
