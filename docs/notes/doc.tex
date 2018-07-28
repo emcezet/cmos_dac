@@ -133,9 +133,9 @@
 			\item dopuszczalne obciążenie ma charakter rezystancyjny o minimalnej wartości $50\Omega$.
 		\end{itemize} }
 	
-	{	Na podstawie wymagań należy zaproponować architekturę urządzenia na podstawie analizy obecnego stanu wiedzy technicznej lub przeprowadzić zgrubne (często ręczne) obliczenia, potwierdzające spełnienie wymagań. Po zapoznaniu się z literaturą wybór padł na konwerter skalujący prąd. Najistotniejsze motywacje tego wyboru to prostota schematu, wysoka szybkość działania \cite{cmosanal} oraz fakt, że poprzednie prace uzyskały do 10 bitów rozdzielczości \cite{plassche}.	Autorzy \cite{cmosanal} jako główne wady podają duży rozmiar oraz duży rozrzut wielkości elementów.}
+	{	Na podstawie wymagań należy zaproponować architekturę urządzenia na podstawie analizy obecnego stanu wiedzy technicznej lub przeprowadzić zgrubne (często ręczne) obliczenia, potwierdzające spełnienie wymagań. Po zapoznaniu się z literaturą wybór padł na konwerter skalujący prąd. Najistotniejsze motywacje tego wyboru to prostota schematu, wysoka szybkość działania \cite{cmosanal} oraz fakt, że poprzednie prace uzyskały do 10 bitów rozdzielczości \cite{plassche}.	Autorzy \cite{cmosanal} jako główne wady podają duży rozmiar oraz duży rozstęp wielkości elementów.}
 	
-	{	Blokowy schemat konwertera skalującego prąd znajduje sie na rysunku \ref{currentscale}. \textcolor{red}{Na rysunku są 4 prądy, można uogólnić ten obrazek lub dostosować do 8-bit?} Zasada działania jest następująca: słowo cyfrowe jest sygnałem sterującym sięć, która może wytwarzać prądy o różnych wartościach. Typowo, przypisuje sie prądom wagi dwójkowe, a kolejne bity słowa cyfrowego decydują o włączeniu/wyłączeniu gałęzi prądowej, co oznacza, że po zsumowaniu prądów wyjściowych otrzymujemy prąd o wartości  bezwzględnej równej wartości zakodowanej w słowie cyfrowym. W zależności od wymagań na sygnał wyjściowy, dokonuje się konwersji prądu wyjściowego na napięcie. 
+	{	Blokowy schemat konwertera skalującego prąd znajduje sie na rysunku \ref{currentscale}. \textcolor{red}{Na rysunku są 4 prądy, można uogólnić ten obrazek lub dostosować do 8-bit?} Zasada działania jest następująca: słowo cyfrowe jest sygnałem sterującym sieć, która może wytwarzać prądy o różnych wartościach. Typowo, przypisuje sie prądom wagi dwójkowe, a kolejne bity słowa cyfrowego decydują o włączeniu/wyłączeniu gałęzi prądowej, co oznacza, że po zsumowaniu prądów wyjściowych otrzymujemy prąd o wartości  bezwzględnej równej wartości zakodowanej w słowie cyfrowym. W zależności od wymagań na sygnał wyjściowy, dokonuje się konwersji prądu wyjściowego na napięcie. 
 		\img{20}{../visio/currentscale.pdf}{Schemat blokowy konwertera skalującego prąd}{currentscale}	}
 
 	{	Typową praktyką jest doposażenie konwertera w rejestr wejściowy, aby ułatwić integrację przetwornika z innymi, cyfrowymi blokami systemu. W przypadku projektowania przetworników, które samodzielnie tworzą układ scalony umieszcza się także standardowe interfejsy cyfrowe, np. SPI lub I2C. Ponadto, na rynku dostępne są konwertery wyposażone w rejestr kontrolny, który umożliwia wykorzystanie dodatkowych funkcjonalności np. programowania wzmocnienia sygnału wyjściowego, autotestowania lub autokalibracji. \textcolor{red}{Czy na pewno tak się pisze autocosie?}
@@ -155,34 +155,29 @@
 		}
 	\chapter{Schemat elektryczny.}
 	\section{Układ bandgap.}
-	\section{Sięć ważonych prądów.}
+	\section{Sieć ważonych prądów.}
 	\section{Wyjściowy wzmacniacz transkonduktancyjny.}
 
-	\section{Dowód poprawności działania.}
-
-	\chapter{Pomiary parametrów.}
-	\section{środowisko.}
+	\chapter{Symulacje i pomiary parametrów.}
 	\section{Układ testujący do wyznaczenia x.}
 	\section{Układ testujący do wyznaczenia y.}
 	\section{Układ testujący do wyznaczenia z.}
 	
-	\chapter{Implementacja.}
-	\section{środowisko.}
-	\section{Technologia.}
+	\chapter{Projekt fizyczny.}
 	\section{Hierarchizacja projektu.}
-	\subsection{Moduł 1.}
-	\subsection{Moduł 2.}
-	\subsection{Moduł 3.}
-	\subsection{Moduł 4.}
+	\section{Widok topografii układu bandgap.}
+	\section{Widok topografii układu 2.}
+	\section{Widok topografii układu 3.}
+	\section{Widok topografii układu 4.}
 	
-	\section{Pomiary parametrów po ekstrakcji.}
-	\subsection{Sposób pomiaru}
-	Jak przed ekstrakcją.
-	\subsection{Rozmiar układu, liczba tranzystorów.}
-
-	\chapter{Podsumowanie}
+	\chapter{Symulacje i pomiary po ekstrakcji.}
+	
+	\chapter{Podsumowanie.}
+	\section{Rozmiar układu, liczba tranzystorów.}
+	\section{Porównanie parametrów przed i po ekstrakcji.}
 	\section{Weryfikacja osiągniętych celów.}
 	
+	\chapter{Wnioski końcowe.}
 	
 	\appendix
 	%insert chapters	
