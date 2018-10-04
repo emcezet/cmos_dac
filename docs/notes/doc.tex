@@ -14,7 +14,7 @@
 \usepackage[polish]{babel}
 
 \usepackage{indentfirst}
-
+\usepackage{ifthen}
 \usepackage{hyperref}
 \hypersetup{
 	colorlinks=true, %set true if you want colored links
@@ -25,6 +25,15 @@
 \usepackage{tikz}
 \def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
 \usepackage{color, colortbl}
+
+\usepackage{circuitikz}
+\usetikzlibrary{shapes,arrows,calc}
+
+\tikzstyle{block} = [rectangle, draw, text width=5cm, 
+text centered, rounded corners, 
+minimum height=2cm, node distance=2cm]
+
+\tikzstyle{line} = [draw, -latex']
 
 \usepackage{geometry}
 \geometry{legalpaper, margin=1in}
@@ -117,7 +126,13 @@
 		\end{itemize} 
 	}
 
+	\chapter{Technologia AMS 180nm.}
+	
+	\section{Zakres temperatur.}
+	{	Proces został zakwalifikowany do zakresu $-40^\circ C \leq T \leq 150^\circ C$, gdzie $T$ oznacza temperaturę złącza. }
 
+	\section{}
+	
 	\chapter{Zaprojektowany konwerter.}
 	\section{Metodologia projektowania.}
 	{	Projekt układu scalonego rozpoczyna się od sformułowania wymagań (specyfikacji) urządzenia lub systemu. W temacie niniejszej pracy 	sformułowano następujące wymagania na przetwornik:
@@ -137,6 +152,15 @@
 	
 	{	Blokowy schemat konwertera skalującego prąd znajduje sie na rysunku \ref{currentscale}. \textcolor{red}{Na rysunku są 4 prądy, można uogólnić ten obrazek lub dostosować do 8-bit?} Zasada działania jest następująca: słowo cyfrowe jest sygnałem sterującym sieć, która może wytwarzać prądy o różnych wartościach. Typowo, przypisuje sie prądom wagi dwójkowe, a kolejne bity słowa cyfrowego decydują o włączeniu/wyłączeniu gałęzi prądowej, co oznacza, że po zsumowaniu prądów wyjściowych otrzymujemy prąd o wartości  bezwzględnej równej wartości zakodowanej w słowie cyfrowym. W zależności od wymagań na sygnał wyjściowy, dokonuje się konwersji prądu wyjściowego na napięcie. 
 		\img{20}{../visio/currentscale.pdf}{Schemat blokowy konwertera skalującego prąd}{currentscale}	}
+	\begin{tikzpicture}[auto]
+
+	% Drawing the blocks of first filter :
+	\node [block] (network) {Sieć skalująca prąd};
+ 	\draw[<-] ([xshift=0pt,yshift=0pt]network.west)  -- node[above, xshift=-40pt]{n-bitowe słowo cyfrowe} ++(-4em,0em);
+ 	\draw[<-] ([yshift=0pt]network.north)  -- node[left]{Napięcie referencyjne} ++(0em,+4em);
+		%\draw ;
+	\end{tikzpicture}
+
 
 	{	Typową praktyką jest doposażenie konwertera w rejestr wejściowy, aby ułatwić integrację przetwornika z innymi, cyfrowymi blokami systemu. W przypadku projektowania przetworników, które samodzielnie tworzą układ scalony umieszcza się także standardowe interfejsy cyfrowe, np. SPI lub I2C. Ponadto, na rynku dostępne są konwertery wyposażone w rejestr kontrolny, który umożliwia wykorzystanie dodatkowych funkcjonalności np. programowania wzmocnienia sygnału wyjściowego, autotestowania lub autokalibracji. \textcolor{red}{Czy na pewno tak się pisze autocosie?}
 		\img{20}{../visio/blokschkonca.pdf}{Blokowy schemat konwertera C/A.}{blokschkonca} }
@@ -155,8 +179,58 @@
 		}
 	\chapter{Schemat elektryczny.}
 	\section{Układ bandgap.}
+	
 	\section{Sieć ważonych prądów.}
+	
+	\begin{circuitikz}
+%		\draw[color=black, thick]
+		\draw [color=black, thick]
+			%Ground
+			(0,0) node[circ]{}
+			(0,0) node[ground]{} 
+			(0,6) node[]{\large{\textbf{$V_{ref}$}}}
+			(0,1) node[nmos, rotate =180, label={ [centered,xshift=-10, yshift = 10] {$M_0$} } ](m0){}
+			(0,5.5) to[short,o-] (m0.S)
+			(0,0) to[short] (m0.D)
+			%Ground line
+			(0,0) to[short,-] (16,0)
+			(m0.G) to[short] (15,1)
+			%Vref label
+			(10,6) node[]{\large{\textbf{$V_{ref}$}}}
+			;
+		\foreach \x in {1,...,8}
+		{
+			\pgfmathsetmacro{\offsetx}{int(2*\x)};
+			\draw [color=black, thick]
+				(\offsetx,1) node[nmos, label={ [centered,xshift=10, yshift = 10] {$M_\x$} } ](m\x){}
+				(\offsetx,0) to[short,*-] (m\x.S)
+				(\offsetx,3) node[nmos, label={ [centered,xshift=10, yshift = 10] {$K_\x$} } ](k\x){}
+				(\offsetx-1,3) to[short,o-] (k\x.G)
+				(m\x.D) to[short] (k\x.S)
+				;
+		}
+		\foreach \x in {1,...,7}
+		{
+			\pgfmathsetmacro{\incx}{int(\x+1)};
+			\draw (k\x.D) to[short,*-*] (k\incx.D);
+		}
+		\draw
+			(k5.D) to[short,*-o] (10,5.5)
+			;
+	\end{circuitikz}
+	
 	\section{Wyjściowy wzmacniacz transkonduktancyjny.}
+
+
+	\begin{circuitikz}
+		\draw [color=black, thick]
+			(0, 0) node[op amp] (opamp) {}
+			(opamp.-) to[R] (-3, 0.5)
+			(opamp.-) to[short,*-] ++(0,1.5) coordinate (leftR)
+			to[R] (leftR -| opamp.out)
+			to[short,-*] (opamp.out)
+			;
+	\end{circuitikz}
 
 	\chapter{Symulacje i pomiary parametrów.}
 	\section{Układ testujący do wyznaczenia x.}
@@ -203,6 +277,9 @@
 		R. Plassche (2001). 
 		\textit{Scalone przetworniki analogowo-cyfrowe i cyfrowo-analogowe,}
 		WKŁ 2001
+		
+		\bibitem{bdgp_1}
+		
 	\end{thebibliography}
 
 \end{document}
