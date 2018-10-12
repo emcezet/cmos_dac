@@ -26,7 +26,8 @@
 \def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
 \usepackage{color, colortbl}
 
-\usepackage{circuitikz}
+\usepackage[americancurrents]{circuitikz}
+
 \usetikzlibrary{shapes,arrows,calc}
 
 \tikzstyle{block} = [rectangle, draw, text width=5cm, 
@@ -128,10 +129,49 @@ minimum height=2cm, node distance=2cm]
 
 	\chapter{Technologia AMS 180nm.}
 	
+	\section{Modele tranzystorów.}
+	{	W projekcie wykorzystano tranzystory dostarczone przez producenta technologii z biblioteki cmhvt o nazwach NFET, NFETX, PFET, PFETX, NFETVTH NFETVTHX, PFETVTH, PFETVTHX.}
+	
+	W pracy wykorzystywane są MOSFET z kanałami typu n i p. Stosujemy oznaczenia:
+	\begin{itemize}
+		\item $V_d$ - potencjał drenu tranzystora
+		\item $V_g$
+		\item $V_d$
+		\item $V_{th,n}$
+		\item $V_{th,p}$
+		\item $I_d$
+	\end{itemize}
+	Obszary pracy tranzystora: odcięcia, triodowy (nienasycenia, omowy), pentodowy (nasycenia).
+	Dla nMOSFET:
+	$$
+	V_{gs} > V_{th,n}
+	$$
+	
+	$$
+	V_{ds} > V_{gs} - V_{th,n}
+	$$	
+	Dla pMOSFET:
+	$$
+	V_{sg} > \left|V_{th,p}\right|
+	$$
+	
+	$$
+	V_{sd} > V_{sg} - \left|V_{th,p}\right|
+	$$	
+	
+	$$
+	I_{d} = \beta \left(V_{gs} - V_{th,n}\right)^2
+	$$
+	
+	$$
+	I_{d} = \beta \left(V_{sg} - \left|V_{th,p}\right|\right)^2
+	$$
+	
 	\section{Zakres temperatur.}
 	{	Proces został zakwalifikowany do zakresu $-40^\circ C \leq T \leq 150^\circ C$, gdzie $T$ oznacza temperaturę złącza. }
 
-	\section{}
+	\section{Parametry elektryczne tranzystorów (wyciag z AMS docs).}
+	{	Typowa wartość $V_{th}=3.55V$, maksymalne napięcia to $V_{max}=1.8V$. }
 	
 	\chapter{Zaprojektowany konwerter.}
 	\section{Metodologia projektowania.}
@@ -179,35 +219,37 @@ minimum height=2cm, node distance=2cm]
 		}
 	\chapter{Schemat elektryczny.}
 	\section{Układ bandgap.}
+	{ 	Na podstawie literatury w tej technologii można uzyskać źródła napięcia odniesienia niezależne od temperatury o wartości około $V_{REF}=1.1V$. Taką wartość napięcia referencyjnego przyjmiemy dla pozostałych bloków. }
 	
 	\section{Sieć ważonych prądów.}
 	
+	{ Ogólny schemat sieci ważonych prądów został zaczerpnięty z \cite{cmosanal}. Ponizej dokonano szczegółowej analizy. Należy zauważyć, że napięcie potencjał źródeł tranzystorów w lustrach prądowych jest ujemne na schemacie w \cite{cmosanal}. Do aplikacji opsianej w tej pracy należy zmodyfikować schemat... Napięcia referencyjne ustalimy na $ \frac{1}{2}V_{REF}$.
+	
 	\begin{circuitikz}
-%		\draw[color=black, thick]
 		\draw [color=black, thick]
-			%Ground
-			(0,0) node[circ]{}
-			(0,0) node[ground]{} 
-			(0,6) node[]{\large{\textbf{$V_{ref}$}}}
-			(0,1) node[nmos, rotate =180, label={ [centered,xshift=-10, yshift = 10] {$M_0$} } ](m0){}
-			(0,5.5) to[short,o-] (m0.S)
-			(0,0) to[short] (m0.D)
-			%Ground line
-			(0,0) to[short,-] (16,0)
-			(m0.G) to[short] (15,1)
-			%Vref label
-			(10,6) node[]{\large{\textbf{$V_{ref}$}}}
-			;
+		%Ground
+		(0,0) node[circ]{}
+		(0,0) node[ground]{} 
+		(0,6) node[]{\large{\textbf{$V_{ref}$}}}
+		(0,1) node[nmos, rotate =180, label={ [centered,xshift=-10, yshift = 10] {$M_0$} } ](m0){}
+		(0,5.5) to[short,o-] (m0.S)
+		(0,0) to[short] (m0.D)
+		%Ground line
+		(0,0) to[short,-] (16,0)
+		(m0.G) to[short] (15,1)
+		%Vref label
+		(10,6) node[]{\large{\textbf{$V_{ref}$}}}
+		;
 		\foreach \x in {1,...,8}
 		{
 			\pgfmathsetmacro{\offsetx}{int(2*\x)};
 			\draw [color=black, thick]
-				(\offsetx,1) node[nmos, label={ [centered,xshift=10, yshift = 10] {$M_\x$} } ](m\x){}
-				(\offsetx,0) to[short,*-] (m\x.S)
-				(\offsetx,3) node[nmos, label={ [centered,xshift=10, yshift = 10] {$K_\x$} } ](k\x){}
-				(\offsetx-1,3) to[short,o-] (k\x.G)
-				(m\x.D) to[short] (k\x.S)
-				;
+			(\offsetx,1) node[nmos, label={ [centered,xshift=10, yshift = 10] {$M_\x$} } ](m\x){}
+			(\offsetx,0) to[short,*-] (m\x.S)
+			(\offsetx,3) node[nmos, label={ [centered,xshift=10, yshift = 10] {$K_\x$} } ](k\x){}
+			(\offsetx-1,3) to[short,o-] (k\x.G)
+			(m\x.D) to[short] (k\x.S)
+			;
 		}
 		\foreach \x in {1,...,7}
 		{
@@ -215,9 +257,218 @@ minimum height=2cm, node distance=2cm]
 			\draw (k\x.D) to[short,*-*] (k\incx.D);
 		}
 		\draw
-			(k5.D) to[short,*-o] (10,5.5)
-			;
+		(k5.D) to[short,*-o] (10,5.5)
+		;
 	\end{circuitikz}
+	}
+
+	\subsection{Konwersja prądu na napięcie przy pomocy pojedynczego tranzystora.}
+	{	Tranzystor MOSFET połączony jak na \ref{itov} może być traktowany jako przetwornik prądu na napięcie. 
+	}
+
+	\begin{figure}[h!]
+	\begin{center}
+		\begin{circuitikz}
+			\draw [color=black, thick]
+			%Ground
+			(0,0) node[ground]{} 
+			(0,0) to [I=${I_{ref}}$] (0,2)
+			(2,0) node[ground]{} 
+			(2,1) node[nmos, rotate =180, label={ [centered,xshift=-10, yshift = 10] {$M_0$} } ](m0){}
+			(0,2) to[short] (2,2)
+			(2,0) to[short] (m0.D)
+			(2,2) to[] (m0.S)
+			(2,2) to[short,*-] (3,2)
+			(3,2) to[short,-*] (3,1)
+			%Ground line
+			(m0.G) to[short,-o] (4,1)
+			(4.5,1) node[]{\large{\textbf{$V_{out}$}}}
+			;
+		\end{circuitikz}
+		\caption{Konwersja prądu na napięcie.}
+		\label{itov}
+	\end{center}	
+	\end{figure}
+
+	
+	{	Zakładając, że tranzystor pracuje w obszarze aktywnym, prąd drenu jest równy:
+		\begin{equation}
+		I_{REF} = K' \frac{W}{L}\left( V_{GS}-V_{TH,n}\right)^2
+		\end{equation}
+	Zaniedbując efekt modulacji kanału i uwzględniając, że źródło tranzystora jest na poziomie masy sygnałowej, napięcie wyjściowy może zostać wyliczone jako:
+		\begin{equation} \label{eq_v_out_mosfet}
+		V_{OUT} = V_{D} = V_{G} = \sqrt{\frac{I_{REF}}{K'}\frac{L}{W}} + V_{TH,n}
+		\end{equation}
+	}
+
+	\subsection{Konwersja prądu na napięcie przy pomocy tranzystora i wzmacniacza operacyjnego.}
+		\begin{center}
+		\begin{circuitikz}
+			\draw [color=black, thick]
+			%Ground
+			
+			(0, 1) node[op amp, rotate =270] (opamp) {$A_1$}
+			(opamp.+) node[ground, rotate = 180] {}
+			
+			(opamp.-) to [short] (0.5,2.5)
+			(2,5) to [I=${I_{ref}}$] (2,3)
+			(2,5) node[ground, rotate = 180 ]{}
+			(2,1) node[nmos, rotate =180, label={ [centered,xshift=-10, yshift = 10] {$M_0$} } ](m0){}
+			(0.5,2.5) to[short] (2,2.5)
+			(2,0) to[short] (m0.D)
+			(opamp.out) to [short](0,-0.5)
+			(2,3) to [] (m0.S)
+			(0,-0.5) to [short] (2,-0.5)
+			(m0.D) to [] (2,-0.5)
+			(2,2) to[] (m0.S)
+			(2,2.5) to[short,*-] (3,2.5)
+			(3,2.5) to[short,-*] (3,1)
+			%Ground line
+			(m0.G) to[short,-o] (4,1)
+			(4.5,1) node[]{\large{\textbf{$V_{out}$}}}
+			;
+		\end{circuitikz}
+	
+	{ Wzmacniacz operacyjny w pętli sprzężenia zwrotnego wymusi potencjał masy na wejściu minus. Biorąc dane z modelu do obliczeń ręcznych i dla rysunku powyżej, z \ref{eq_cutoff} otrzymujemy nierówność:
+		$$
+		0 - V_s > V_{th,n} = 0.4
+		$$
+		Źródło prądowe wymusza prąd $I_{ref}$, więc:
+		$$
+		I_{ref} = K \frac{W}{L}\left( V_s-V_{th,n}\right)^2
+		$$
+		Zakładając jednostkowy stosunek szerkości do wyskości i podstawiając dane otrzymujemy dla $I_{ref} = 10\mu A$:
+		$$
+		V_s = -0.839V
+		$$
+	}
+	\end{center}
+
+	\subsection{Analiza lustra prądowego z kluczem z pojedynczego nMOSFET.}
+	{ Projektując lustro prądowe, należy zadbać, aby tranzystory były w obszarze aktywnym, czyli:
+		\begin{equation} \label{eq_cutoff}
+		V_{gs} > V_{th,n}
+		\end{equation}
+		oraz
+		\begin{equation} \label{eq_saturation}
+		V_{ds} \ge V_{gs} - V_{th,n}
+		\end{equation}
+		Ze względu na połączenie drenu i bramki \ref{eq_saturation} jest zawsze prawdą.
+	}
+	\subsection{Dobór długości kanału na podstawie charakterystyk niedopasowania.}
+	{	Producent technologii dostarcza wzory opisujące odchylenie standardowe parametrów urządzeń, które zostały zaprojektowane jako identyczne. Do generacji prądów o binarnych wagach wykorzystujemy lustra prądowe, składające się z kolejno $1, 2, 4,..., 2^{N-1}$. Błąd napięciowego sygnału wyjściowego musi być mniejszy niż $\frac{LSB}{2}$. Zakładając, że napięciowy sygnał wejściowy jest proporcjonalny do sumy tych prądów:
+		\begin{equation}
+		V_{out} = A \sum_{i=0}^{N-1} b_{i}I_{i}
+		\end{equation}
+	LSB dla konwertera wynosi, gdzie FS oznacza pełen zakres sygnału wyjściowego:
+		\begin{equation}
+			LSB_v = \frac{FS_Vout}{2^{N-1}}
+		\end{equation}
+	Dla prądów:
+		\begin{equation}
+			LSB_i = \frac{LSB_v}{A}
+		\end{equation}
+
+	W związku z tym faktem zakłada się, że błąd każdego z prądów również musi być mniejszy od $\frac{LSB}{2}$. Prąd i-tej gałęzi jest sumą $2^{i}$ prądów, przepływających przez $2^{i}$ identycznych tranzystorów. Aby błąd sumarycznego prądu każdej gałęzi był mniejszy niż LSB/2, suma błędów niedopasowania wszystkich tranzystorów w każdej gałęzi musi być mniejsza niż LSB/2. 
+		\begin{equation}
+			\sigma \left( \Delta I_{i,ds} \right) < \frac{LSB_i}{2}
+		\end{equation}
+	Łatwo zauważyć, że największy błąd jest dla ostatniej gałęzi z największą liczbą tranzystorów: $n=2^{N-1}=2^7$. Minimalny prąd referencyjny w pierwszej gałęzi ma wartość LSB.
+		\begin{equation}
+		n \sigma \left( \Delta I_{N-1,ds} \right) LSB_i = 2^{N-1} \sigma \left( \Delta I_{N-1,ds} \right) LSB_i < \frac{LSB_i}{2}
+		\end{equation}
+
+		\begin{equation}
+			\sigma \left( \Delta I_{N-1,ds} \right) < 2^{-N}
+		\end{equation}
+
+	Z cite{AMSmatching} mamy:
+		\begin{equation}
+			\sigma^2 \left( \frac{\Delta I_{ds}}{I_{ds}}\right) = 	\sigma^2 \left( \frac{\Delta \mu}{\mu}\right) + \sigma^2 \left( \frac{2\Delta V_T}{V_{gs} - V_{T}}\right)
+		\end{equation}
+		
+		\begin{equation}
+			3 \sigma \left(\Delta \mu \right) = \frac{ \sqrt{2} A_{\beta}  } { \sqrt{ \left(W-A_{\beta W}\right)\left(L-A_{\beta} L\right)}}
+		\end{equation}
+
+		\begin{equation}
+		3 \sigma \left(\Delta V_T \right) = \frac{ \sqrt{2} A_{V_T}  } { \sqrt{ \left(W-A_{VTW}\right)\left(L-A_{VTL}\right)}}
+		\end{equation}
+	Wykreślmy błąd prądu przy pomocy Octave, znajdziemy minimalne L.
+		
+	}
+	
+
+
+
+	\subsection{Źródło napięcia referencyjnego zbudowane z dwóch tranzystorów.}
+	obwód generacji napięcia odniesienia jak z rysunku...
+	Ze względu na połączenie drenu i bramki, tranzystor może pracować tylko w nasyceniu lub odcięciu. Zakładając, że oba tranzystory
+	są w nasyceniu i oznaczając napięcie drenu jako $V_{out}$ układamy równania dla nMOSFET:
+	\begin{equation}
+	V_{out} > V_{th,n}
+	\end{equation}
+	
+	\begin{equation}
+	V_{out} > V_{out} - V_{th,n}
+	\end{equation}
+	
+	i pMOSFET:
+	
+	\begin{equation}
+	V_{dd} - V_{out} > \left|V_{th,p}\right|
+	\end{equation}
+	
+	\begin{equation}
+	V_{dd} - V_{out} > V_{dd} - V_{out} - \left|V_{th,p}\right|
+	\end{equation}
+	
+	Po prostych przekształceniach:
+	\begin{equation}
+	V_{out} > V_{th,n}
+	\end{equation}
+	
+	\begin{equation}
+	0 > - V_{th,n}
+	\end{equation}
+	
+	i pMOSFET:
+	
+	\begin{equation}
+	V_{dd} - V_{out} > \left|V_{th,p}\right|
+	\end{equation}
+	
+	\begin{equation}
+	0 > - \left|V_{th,p}\right|
+	\end{equation}
+	
+	
+	Ponadto, prądy muszą być równe:
+	\begin{equation}
+	I_{d,n} = I_{d,p}
+	\end{equation}
+	
+	W nasyceniu:
+	\begin{equation}
+	\beta_n \left(V_{out} - V_{th,n}\right)^2 = \beta_p \left(V_{dd} - V_{out} - \left|V_{th,p}\right|\right)^2
+	\end{equation}
+	Obie strony są zawsze dodatnie, więc możemy pierwiastkować:
+	\begin{equation}
+	\left(V_{out} - V_{th,n}\right) = \sqrt{\frac{\beta_p}{\beta_n}}\left(V_{dd} - V_{out} - \left|V_{th,p}\right|\right)
+	\end{equation}
+	
+	\begin{equation}
+	V_{out}\left(1+\sqrt{\frac{\beta_p}{\beta_n}}\right) = \sqrt{\frac{\beta_p}{\beta_n}}\left(V_{dd} -\left|V_{th,p}\right|\right)+V_{th,n}
+	\end{equation}
+	
+	\begin{equation}
+	V_{out} =\frac{\sqrt{\frac{\beta_p}{\beta_n}}\left(V_{dd} -\left|V_{th,p}\right|\right)+V_{th,n}}{\left(1+\sqrt{\frac{\beta_p}{\beta_n}}\right)}
+	\end{equation}	
+	
+	Zauważmy, że dla procesu o równych napięciach progowych i tranzystorów o tej samej $\beta$, wynik jest dość intuicyjny:
+	\begin{equation}
+	V_{out} =\frac{1}{2} V_{dd}
+	\end{equation}
 	
 	\section{Wyjściowy wzmacniacz transkonduktancyjny.}
 
