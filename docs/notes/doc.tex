@@ -74,9 +74,9 @@ minimum height=2cm, node distance=2cm]
 	\chapter{Wstęp.}
 	{	Konwertery sygnałów z postaci cyfrowej na analogową (i odwrotnie) są niezbędną częścią systemów elektronicznych, ponieważ umożliwiają komunikację pomiędzy zewnętrznym, analogowym światem i cyfrowymi rdzeniami układów krzemowych \cite{integconv}. Do przykładowych zastosowań konwerterów należą m.in. generowanie sygnału wizyjnego, fonicznego lub sygnałów sterowania np. dla układów radarowych czy konwerterów mocy. }
 	
-	{	Sygnałem wejściowym dla 8 bitowego przetwornika cyfrowo analogowego jest słowo cyfrowe $\mathcal{B}=\{b_7,b_6,...,b_0\}$. Bit $b_7$ nosi miano najstarszego bitu (MSB - Most Siginificant Bit), a bit $b_0$ to najmłodszy (LSB - Least Siginificant Bit). Sygnał wyjściowy to analogowe napięcie lub prąd $\mathcal{S}$ przeskalowany przez sygnał referencyjny $V_{ref}$. Zależność pomiędzy sygnałem wyjściowym i wejściowym to wtedy:
+	{	Sygnałem wejściowym dla N bitowego przetwornika cyfrowo analogowego jest słowo cyfrowe \\ $\mathcal{B}=\{b_{N-1},b_{N-2},...,b_0\}$. Bit $b_{N-1}$ nosi miano najstarszego bitu (MSB - Most Siginificant Bit), a bit $b_0$ to najmłodszy (LSB - Least Siginificant Bit). Sygnał wyjściowy to analogowe napięcie lub prąd $\mathcal{S}$ przeskalowany przez sygnał referencyjny $V_{ref}$. Zależność pomiędzy sygnałem wyjściowym i wejściowym to wtedy:
 	\begin{equation}
-	\mathcal{S} = V_{ref}\mathcal{B} = V_{ref} {\sum_{k=0}^{7}b_k2^k}
+	\mathcal{S} = V_{ref}\mathcal{B} = V_{ref} {\sum_{k=0}^{N-1} b_k2^k}
 	\end{equation}
 
 	}
@@ -90,7 +90,7 @@ minimum height=2cm, node distance=2cm]
 	
 	{	\textbf{Przetworniki sieciowe ze skalowaniem} dokonują zamiany słowa cyfrowego na napięcia, prądy lub ładunki proporcjonalne (ważone) do wartości tego słowa. Sygnały z poszczególnych gałęzi sieci są sumowane, a sygnał wyjściowy podlega konwersji i/lub kondycjonowaniu do zadanej formy. Udaje się uzyskać rozdzielczość do 10-bitów.}
 	
-	{	\textbf{Przetwornik z kształtowaniem szumu} wykorzystuje filtry nadpróbkujące, układy kształtowania szumu, 1-bitowy przetwornik C/A i analogowy filtr wyjściowy. Uzyskuje się wysoką precyzję 16-18 bitów. \textcolor{red}{Czy przetworniki Nyquista, $\Sigma \Delta$ i nadpróbkujące to dokładnie to samo, bo tak to wygląda?} }
+	{	\textbf{Przetwornik z kształtowaniem szumu} wykorzystuje filtry nadpróbkujące, układy kształtowania szumu, 1-bitowy przetwornik C/A i analogowy filtr wyjściowy. Uzyskuje się wysoką precyzję 16-18 bitów. }
 	
 	{	\textbf{Przetwornik szeregowy z redystrybucją ładunku} wykorzystuje układ dwóch połączonych równolegle identycznych kondensatorów i kilka kluczy. Kondensator wejściowy jest ładowany lub rozładowywany w zależności od wartości kolejnych bitów, a następnie dołączany do kondensatora wyjściowego, co pozwala na dodanie lub odjęcie ładunku, a więc zwiększenie lub zmniejszenie wartości napięcia wyjściowego.
 	}
@@ -102,7 +102,20 @@ minimum height=2cm, node distance=2cm]
 	{ 	\textbf{Przetworniki segmentowe} to przetworniki składające się z połączenia dwóch lub więcej przetworników. Zazwyczaj łączone są przetowrniki o małej liczbie bitów w większe, aby zwiększyć rozdzielczość. }
 
 	\section{Parametry statyczne przetworników C/A.(\textcolor{red}{Podać tylko te parametry, które będę mierzył.})}
-	{	\textbf{Rozdzielczość} określa minimalną zmianę sygnału wyjściowego dla kolejnych słów cyfrowych. Odpowiada stosunkowi pełnego zakresu napięcia wyjściowego do liczby poziomów (różnych słów cyfrowych).
+	{	\textbf{Zakres sygnału wyjściowego $FS$} to zakres wartości, które może przyjmować sygnał wyjściowy przetwornika.
+		$$
+		V_{out} \in \langle V_{out_{min}} ;  V_{out_{max}} \rangle
+		$$
+		
+		$$
+		FS = V_{out_{max}} - V_{out_{min}}
+		$$	
+	}
+	
+	{	\textbf{Rozdzielczość } określa minimalną zmianę sygnału wyjściowego dla kolejnych słów cyfrowych. Odpowiada stosunkowi pełnego zakresu napięcia wyjściowego do liczby poziomów (różnych słów cyfrowych).
+		$$
+		
+		$$
 	}
 
 	{	\textbf{Dokładność względna} to odchylenie wartości sygnału wyjściowego w stanie ustalonym od teoretycznej prostej wyznaczonej przez pełny zakres przetwarzania. }
@@ -129,49 +142,130 @@ minimum height=2cm, node distance=2cm]
 
 	\chapter{Technologia AMS 180nm.}
 	
-	\section{Modele tranzystorów.}
-	{	W projekcie wykorzystano tranzystory dostarczone przez producenta technologii z biblioteki cmhvt o nazwach NFET, NFETX, PFET, PFETX, NFETVTH NFETVTHX, PFETVTH, PFETVTHX.}
+	\section{Dostępne urządzenia.}
+	{	W projekcie wykorzystano następujące tranzystory dostarczone przez producenta technologii:
+		\begin{itemize}
+			\item NFET,
+			\item NFETX,
+			\item PFET,
+			\item PFETX,
+%			\item NFETVTH,
+%			\item NFETVTHX,
+%			\item PFETVTH,
+%			\item PFETVTHX.
+		\end{itemize}
+   }
+	\section{Model tranzystora LV-FET z kanałem indukowanym do obliczeń ręcznych.}
+	{ 	W pracy wykorzystywane są niskonapięciowe tranzystory polowe z kanałami indukowanymi typu n i p. Do obliczęń ręcznych wykorzystano uproszczony model kwadratowy. Wyróżnia się w nim obszary pracy tranzystora: odcięcia, triodowy (inaczej: nienasycenia, omowy), pentodowy (nasycenia). }
 	
-	W pracy wykorzystywane są MOSFET z kanałami typu n i p. Stosujemy oznaczenia:
-	\begin{itemize}
-		\item $V_d$ - potencjał drenu tranzystora
-		\item $V_g$
-		\item $V_d$
-		\item $V_{th,n}$
-		\item $V_{th,p}$
-		\item $I_d$
-	\end{itemize}
-	Obszary pracy tranzystora: odcięcia, triodowy (nienasycenia, omowy), pentodowy (nasycenia).
-	Dla nMOSFET:
-	$$
-	V_{gs} > V_{th,n}
-	$$
+	{	Obszar odcięcia tranzystora NFET:
+		\begin{equation}
+			V_{GS} \leq V_{TH,n}
+		\end{equation}
+		
+		\begin{equation}
+			I_{DS} \eqsim 0
+		\end{equation}
+	}
 	
-	$$
-	V_{ds} > V_{gs} - V_{th,n}
-	$$	
-	Dla pMOSFET:
-	$$
-	V_{sg} > \left|V_{th,p}\right|
-	$$
-	
-	$$
-	V_{sd} > V_{sg} - \left|V_{th,p}\right|
-	$$	
-	
-	$$
-	I_{d} = \beta \left(V_{gs} - V_{th,n}\right)^2
-	$$
-	
-	$$
-	I_{d} = \beta \left(V_{sg} - \left|V_{th,p}\right|\right)^2
-	$$
-	
-	\section{Zakres temperatur.}
-	{	Proces został zakwalifikowany do zakresu $-40^\circ C \leq T \leq 150^\circ C$, gdzie $T$ oznacza temperaturę złącza. }
+	{	Obszar nienasycenia tranzystora NFET:
+		\begin{equation}
+			V_{GS} > V_{TH,n}
+		\end{equation}
+		
+		\begin{equation}
+			V_{DS} \leq V_{GS} - V_{TH,n}
+		\end{equation}
+		
+		\begin{equation}
+			I_{DS} = \mu_n C_{ox} \frac{W}{L} \left( \left(V_{GS} - V_{TH,n}\right) V_{DS} - \frac{V_{DS}^2}{2}  \right)
+		\end{equation}
+	}
 
-	\section{Parametry elektryczne tranzystorów (wyciag z AMS docs).}
-	{	Typowa wartość $V_{th}=3.55V$, maksymalne napięcia to $V_{max}=1.8V$. }
+	{	Obszar nasycenia tranzystora NFET:
+		\begin{equation}
+			V_{GS} > V_{TH,n}
+		\end{equation}
+		
+		\begin{equation}
+			V_{DS} > V_{GS} - V_{TH,n}
+		\end{equation}
+		
+		\begin{equation}
+			I_{DS} = \frac{1}{2} \mu_n C_{ox} \frac{W}{L} \left( V_{GS} - V_{TH,n} \right)^2
+		\end{equation}	
+	}
+
+	{	Obszar odcięcia tranzystora PFET:
+		\begin{equation}
+		V_{SG} \leq \left|V_{TH,p}\right|
+		\end{equation}
+		
+		\begin{equation}
+		I_{SD} \eqsim 0
+		\end{equation}
+	}
+	
+	{	Obszar nienasycenia tranzystora PFET:
+		\begin{equation}
+		V_{SG} > \left|V_{TH,p}\right|
+		\end{equation}
+		
+		\begin{equation}
+		V_{SD} \leq V_{SG} - \left|V_{TH,p}\right|
+		\end{equation}
+		
+		\begin{equation}
+		I_{DS} = \mu_p C_{ox} \frac{W}{L} \left( \left(V_{SG} - \left|V_{TH,p}\right| \right) V_{SD} - \frac{V_{SD}^2}{2}  \right)
+		\end{equation}
+	}
+	
+	{	Obszar nasycenia tranzystora PFET:
+		\begin{equation}
+		V_{SG} > \left|V_{TH,p}\right|
+		\end{equation}
+		
+		\begin{equation}
+		V_{SD} > V_{SG} - \left|V_{TH,p}\right|
+		\end{equation}
+		
+		\begin{equation}
+		I_{DS} = \frac{1}{2} \mu_p C_{ox} \frac{W}{L} \left( V_{SG} - \left|V_{TH,p}\right| \right)^2
+		\end{equation}	
+	}
+
+	{	Ponadto wprowadzono oznaczenia:
+	
+		$$
+			K_i = \mu_i C_{ox}
+		$$
+	
+		$$
+			\beta_i = \mu_i C_{ox} \frac{W}{L} = K_i \frac{W}{L}
+		$$
+	}
+
+	{	Z dokumentacji wyciągnięto następujące wartości stałych procesu:
+		$$
+			V_{TH,n} = 0.355V
+		$$
+		
+		$$
+			K_n = 274 \frac{\mu A}{V^2}
+		$$
+
+		$$
+			V_{TH,p} = -0.405V
+		$$
+	
+		$$
+			K_p = 56 \frac{\mu A}{V^2}
+		$$	
+	}
+	\section{Zakres temperatur.}
+	{	Proces został zakwalifikowany do zakresu temperatur złącza $-40^\circ C \leq T \leq 150^\circ C$. }
+
+
 	
 	\chapter{Zaprojektowany konwerter.}
 	\section{Metodologia projektowania.}
@@ -182,7 +276,7 @@ minimum height=2cm, node distance=2cm]
 			\item osiąga szybkość konwersji powyżej 4 milionów próbek na sekundę (MSPS),
 			\item ma 8-bitów rozdzielczości.
 		\end{itemize} 
-		Ponadto, projektant doprecyzował następujące parametry:
+	Ponadto, projektant doprecyzował następujące parametry:
 		\begin{itemize}
 			\item sygnał wyjściowy to sygnał napięciowy o zakresie co najmniej od 0V do 1V,
 			\item dopuszczalne obciążenie ma charakter rezystancyjny o minimalnej wartości $50\Omega$.
@@ -191,34 +285,32 @@ minimum height=2cm, node distance=2cm]
 	{	Na podstawie wymagań należy zaproponować architekturę urządzenia na podstawie analizy obecnego stanu wiedzy technicznej lub przeprowadzić zgrubne (często ręczne) obliczenia, potwierdzające spełnienie wymagań. Po zapoznaniu się z literaturą wybór padł na konwerter skalujący prąd. Najistotniejsze motywacje tego wyboru to prostota schematu, wysoka szybkość działania \cite{cmosanal} oraz fakt, że poprzednie prace uzyskały do 10 bitów rozdzielczości \cite{plassche}.	Autorzy \cite{cmosanal} jako główne wady podają duży rozmiar oraz duży rozstęp wielkości elementów.}
 	
 	{	Blokowy schemat konwertera skalującego prąd znajduje sie na rysunku \ref{currentscale}. \textcolor{red}{Na rysunku są 4 prądy, można uogólnić ten obrazek lub dostosować do 8-bit?} Zasada działania jest następująca: słowo cyfrowe jest sygnałem sterującym sieć, która może wytwarzać prądy o różnych wartościach. Typowo, przypisuje sie prądom wagi dwójkowe, a kolejne bity słowa cyfrowego decydują o włączeniu/wyłączeniu gałęzi prądowej, co oznacza, że po zsumowaniu prądów wyjściowych otrzymujemy prąd o wartości  bezwzględnej równej wartości zakodowanej w słowie cyfrowym. W zależności od wymagań na sygnał wyjściowy, dokonuje się konwersji prądu wyjściowego na napięcie. 
+	
 		\img{20}{../visio/currentscale.pdf}{Schemat blokowy konwertera skalującego prąd}{currentscale}	}
-	\begin{tikzpicture}[auto]
 
-	% Drawing the blocks of first filter :
+	\begin{tikzpicture}[auto]
 	\node [block] (network) {Sieć skalująca prąd};
  	\draw[<-] ([xshift=0pt,yshift=0pt]network.west)  -- node[above, xshift=-40pt]{n-bitowe słowo cyfrowe} ++(-4em,0em);
  	\draw[<-] ([yshift=0pt]network.north)  -- node[left]{Napięcie referencyjne} ++(0em,+4em);
 		%\draw ;
 	\end{tikzpicture}
 
-
-	{	Typową praktyką jest doposażenie konwertera w rejestr wejściowy, aby ułatwić integrację przetwornika z innymi, cyfrowymi blokami systemu. W przypadku projektowania przetworników, które samodzielnie tworzą układ scalony umieszcza się także standardowe interfejsy cyfrowe, np. SPI lub I2C. Ponadto, na rynku dostępne są konwertery wyposażone w rejestr kontrolny, który umożliwia wykorzystanie dodatkowych funkcjonalności np. programowania wzmocnienia sygnału wyjściowego, autotestowania lub autokalibracji. \textcolor{red}{Czy na pewno tak się pisze autocosie?}
+	{	Typową praktyką jest doposażenie konwertera w rejestr wejściowy, aby ułatwić integrację przetwornika z innymi, cyfrowymi blokami systemu. W przypadku projektowania przetworników, które samodzielnie tworzą układ scalony umieszcza się także standardowe interfejsy cyfrowe, np. SPI lub I2C. Ponadto, na rynku dostępne są konwertery wyposażone w rejestr kontrolny, który umożliwia wykorzystanie dodatkowych funkcjonalności np. programowania wzmocnienia sygnału wyjściowego, autotestowania lub autokalibracji.
 		\img{20}{../visio/blokschkonca.pdf}{Blokowy schemat konwertera C/A.}{blokschkonca} }
 
 	{	Poprawnie zaprojektowane układy scalone charakteryzują się niewrażliwością na 3 istotne czynniki:
 		\begin{itemize}
-			\item rozrzut technologiczny (precyzja wykonania) parametrów elementów elektronicznych,
+			\item rozrzut technologiczny (precyzja wykonania, niedopasowanie) parametrów elementów elektronicznych,
 			\item zmiana temperatury,
 			\item odchyłki napięcia zasilania od wartości nominalnej.
 		\end{itemize}
-		\textcolor{red}{Weźmiemy bandgap, wyjaśnić po co i jak. Matching tranzystorów. Przepisać ten fragment.}	}
+		Wszystkie wymienione tu czynniki zostały zaadresowane w niniejszej pracy. }
 	
-	{	Kluczowym dla poprawnego działania konwertera skalowanego jest stabilne źródło napięcia odniesienia. Układy wytwarzane w technologii CMOS są wrażliwe na rorzut technologiczny parametrów elementów elektronicznych, zmieniają się ich właściwości pod wpływem zmian temperatury lub zmian wartości napięcia zasilania. Aby zapewnić stabilność napięcia odniesienia stosuje się układ bandgap. }
 
-	{	Teoretyczne LSB u nas to 1/256 V. Zwrócić uwagę, czy po implementacji na wyjściu rejestru wyjściowego będą impulsy szpilkowe (glitch). Gdyby były one większe niż LSB to jest problem.
-		}
 	\chapter{Schemat elektryczny.}
 	\section{Układ bandgap.}
+	{	Kluczowym dla poprawnego działania konwertera skalowanego jest stabilne źródło napięcia odniesienia. Układy wytwarzane w technologii CMOS są wrażliwe na rorzut technologiczny parametrów elementów elektronicznych, zmieniają się ich właściwości pod wpływem zmian temperatury lub zmian wartości napięcia zasilania. Aby zapewnić stabilność napięcia odniesienia stosuje się układ bandgap. }
+	
 	{ 	Na podstawie literatury w tej technologii można uzyskać źródła napięcia odniesienia niezależne od temperatury o wartości około $V_{REF}=1.1V$. Taką wartość napięcia referencyjnego przyjmiemy dla pozostałych bloków. }
 	
 	\section{Sieć ważonych prądów.}
@@ -499,10 +591,9 @@ minimum height=2cm, node distance=2cm]
 	
 	\chapter{Podsumowanie.}
 	\section{Rozmiar układu, liczba tranzystorów.}
-	\section{Porównanie parametrów przed i po ekstrakcji.}
 	\section{Weryfikacja osiągniętych celów.}
-	
-	\chapter{Wnioski końcowe.}
+	\section{Wnioski końcowe.}	
+
 	
 	\appendix
 	%insert chapters	
@@ -530,6 +621,18 @@ minimum height=2cm, node distance=2cm]
 		WKŁ 2001
 		
 		\bibitem{bdgp_1}
+		Design of an improved Bandgap Reference in
+		180nm CMOS Process Technology
+
+		\bibitem{bdgp_2}
+		Design and implementation of curvature corrected
+		bandgap voltage reference - 1.1V using 180nm Technology
+
+		\bibitem{ams_proc_params}
+		$0.18\mu m$ HV CMOS Process Parameters, Rev. 3.0, AMS AG
+
+		\bibitem{ams_match_params}
+		$0.18\mu m$ HV CMOS Matching Parameters, Rev. 1.0, AMS AG
 		
 	\end{thebibliography}
 
