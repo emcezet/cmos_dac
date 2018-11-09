@@ -6,7 +6,7 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{graphicx}
-
+\usepackage{amsthm}
 
 \usepackage{polski}
 \usepackage[polish]{babel}
@@ -26,18 +26,44 @@
 \def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
 \usepackage{color, colortbl}
 
+\usepackage{pgfplots}       % <-- required in preamble
+\usepackage{pgfplotstable}       % <-- required in preamble
+%\usepackage{SIunits}        % <-- required in preamble
+\pgfplotsset{compat=newest} % <-- optional in preamble
+
+
 \usepackage[americancurrents]{circuitikz}
+
 
 \usetikzlibrary{shapes,arrows,calc}
 
-\tikzstyle{block} = [rectangle, draw, text width=5cm, 
+\tikzstyle{block} = [rectangle, draw, text width=3cm, 
 text centered, rounded corners, 
-minimum height=2cm, node distance=2cm]
+minimum height=1.5cm, node distance=2cm]
+
+\tikzstyle{signal} = [rectangle, text width=2.5cm, 
+text centered, rounded corners, 
+minimum height=1cm, node distance=2cm]
 
 \tikzstyle{line} = [draw, -latex']
 
 \usepackage{geometry}
 \geometry{legalpaper, margin=1in}
+
+\theoremstyle{definition}
+\newtheorem{notation}{Notacja}[section]
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definicja}[section]
+
+\theoremstyle{definition}
+\newtheorem{przyklad}{Przykład}[section]
+
+\theoremstyle{definition}
+\newtheorem{twierdzenie}{Twierdzenie}[section]
+
+\theoremstyle{definition}
+\newtheorem{wniosek}{Wniosek}[section]
 
 \newcommand{\img}[4]{
 	\begin{figure}[H]
@@ -66,22 +92,89 @@ minimum height=2cm, node distance=2cm]
 	{	Goal of this thesis... \textcolor{red}{NA KONIEC UZUPEŁNIĆ.} }
 
 	\section{Abstrakt.}
-	{	Celem niniejszej pracy jest zaprojektowanie schematu i topografii masek 8-bitowego przetwornika cyfrowo analogowego w technologii CMOS AMS 180nm. \textcolor{red}{NA KONIEC UZUPEŁNIĆ.} }
+	{	Prztworniki cyfrowo-analogowe są niezbędną częścią wielu systemów mikroelektronicznych. Celem niniejszej pracy jest zaprojektowanie schematu i topografii masek 8-bitowego przetwornika cyfrowo analogowego w technologii CMOS AMS 180nm. Zaprojektowany przetwornik jest to kaskada dwóch 4-bitowych równoległych konwerterów ze skalowaniem prądu. Wykonano serię symulacji służących do pomiaru parametrów konwertera.}
 	
 	\section{Podziękowania.}
 	{	Dziękujemy wszystkim ... . \textcolor{red}{NA KONIEC UZUPEŁNIĆ} }
 	
 	\chapter{Wstęp.}
-	{	Konwertery sygnałów z postaci cyfrowej na analogową (i odwrotnie) są niezbędną częścią systemów elektronicznych, ponieważ umożliwiają komunikację pomiędzy zewnętrznym, analogowym światem i cyfrowymi rdzeniami układów krzemowych \cite{integconv}. Do przykładowych zastosowań konwerterów należą m.in. generowanie sygnału wizyjnego, fonicznego lub sygnałów sterowania np. dla układów radarowych czy konwerterów mocy. }
+	{	Konwertery sygnałów z postaci cyfrowej na analogową (i odwrotnie) są niezbędną częścią systemów elektronicznych, ponieważ umożliwiają komunikację pomiędzy zewnętrznym, analogowym światem i cyfrowymi rdzeniami układów krzemowych \cite{integconv}. Do przykładowych zastosowań konwerterów danych należą m.in. generowanie sygnału wizyjnego, fonicznego lub sygnałów sterowania np. dla układów radarowych, konwerterów mocy lub miernictwa. }
 	
-	{	Sygnałem wejściowym dla N bitowego przetwornika cyfrowo analogowego jest słowo cyfrowe \\ $\mathcal{B}=\{b_{N-1},b_{N-2},...,b_0\}$. Bit $b_{N-1}$ nosi miano najstarszego bitu (MSB - Most Siginificant Bit), a bit $b_0$ to najmłodszy (LSB - Least Siginificant Bit). Sygnał wyjściowy to analogowe napięcie lub prąd $\mathcal{S}$ przeskalowany przez sygnał referencyjny $V_{ref}$. Zależność pomiędzy sygnałem wyjściowym i wejściowym to wtedy:
-	\begin{equation}
-	\mathcal{S} = V_{ref}\mathcal{B} = V_{ref} {\sum_{k=0}^{N-1} b_k2^k}
-	\end{equation}
 
-	}
+	\section{Systemy konwersji cyfrowo analogowej.}
+	\subsection{Twierdzenie Nyquista}
+	{	W tym rozdziale dokonano zbioru najistotniejszych pojęć niezbędnych do zrozumienia sposobu działania konwerterów danych i zagadnień związanych z przetwarzaniem sygnałów. }
 	
-	\section{Architektury konwerterów C/A. \cite{cmosanal} \cite{plassche}}
+	\begin{twierdzenie}{Niech sygnał $S$ zajmuje pasmo częstotliwości $B =\left(0, f_{max}\right) $. Sygnał $S$ może być przetwarzany bezbłędnie, wtedy i tylko wtedy, gdy częstotliwość próbkowania $f_{sample}$ jest conajmniej dwukrotnie większa od górnego zakresu pasma częstotliwości $f_{max}$. }
+	$$
+		f_{sample} \ge 2 f_{max}
+	$$
+	\end{twierdzenie}
+	
+	\begin{przyklad}{Dany jest konwerter danych, który przetwarza 4 miliony próbek na sekundę ($4MSPS$). Zgodnie z twierdzeniem Nyquista maksymalna częstotliwość przetwarzanego sygnału wynosi:}
+		\begin{equation}
+			f_{max} = \frac{f_{sample}}{2} = \frac{4M}{2} = 2MHz
+		\end{equation}
+	\end{przyklad}
+	
+	\subsection{Filtracja wejściowa}
+	{	W przypadku gdy twierdzenie Nyquista nie jest spełnione w widmie sygnału wyjściowego obserwuje sie imaże (zwielokrotnienia) widm, które powodują zniekształcenie sygnału. Z tego powodu do poprawnego funkcjonowania systemu konwersji cyfrowo analogowej przed blokiem konwersji należy umieścić cyfrowy filtr dolnoprzepustowy, którego zadaniem jest ograniczenie pasma sygnału wejściowego w taki sposób, aby spełnione było twierdzenie Nyqsuita. Tego rodzaju filtr jest nazywany filtrem antyaliasowym. }
+	
+	\begin{przyklad}{Dany jest konwerter danych, który przetwarza $4MSPS$. Filtr antyaliasowy o transmitancji $H(f)$ powinien mieć charakterystykę amplitudową:}
+		\[   
+		|H(f)| = 
+		\begin{cases}
+			1 &\quad \text{dla} f \le 2MHz\\
+			0 &\quad \text{dla} f>2MHz\\
+		\end{cases}
+		\]		
+	\end{przyklad}
+	\begin{figure}[!htb]
+	\centering
+	\begin{tikzpicture}
+	\draw[->] (-4,0) -- (4,0) node[below] {$f$};
+	\draw[->] (0,-1) -- (0,2) node[right] {$|H(f)|$};
+	\draw[scale=1,domain=-2:2,smooth,variable=\x,blue] plot ({\x},{1});
+	\draw[scale=1,domain=-4:-2,smooth,variable=\x,blue] plot ({\x},{0});
+	\draw[scale=1,domain=2:4,smooth,variable=\x,blue] plot ({\x},{0});
+	\draw[scale=1,domain=0:1,smooth,variable=\y,blue] plot ({-2},{\y});
+	\draw[scale=1,domain=0:1,smooth,variable=\y,blue] plot ({2},{\y});
+	\end{tikzpicture}
+	\end{figure}
+		
+	\subsection{Filtracja wyjściowa}
+	{	W trakcie konwersji wyjście konwertera znajduje się w stanie przejściowym, co wprowadza
+	zniekształcenia sygnału wyjściowego. Wynika to zazwyczaj z faktu, że przejściu pomiędzy różnymi słowami cyfrowymi towarzyszy przełączenie jednego lub więcej kluczy. Ochronę przed zniekształceniami sygnału i impulsami szpilkowymi osiąga się dzięki stosowaniu układu próbkująco-pamiętającego i filtru wyjściowego. Ten ostatni popularnie nazywany jest filtrem rekonstrukcyjnym. }
+	\begin{przyklad}{Dany jest konwerter danych, który przetwarza $4MSPS$. Filtr rekonstrukcyjny powinien być filtrem dolnoprzepustowym o częstotliwości granicznej równej $2MHz$.}
+	\end{przyklad}
+
+	\begin{przyklad}{Dany jest konwerter danych, który przetwarza $4MSPS$. Układ próbkująco-pamiętający musi być szybszy niż... stała czasowa, 1/10zegara?}
+	\end{przyklad}
+
+	\subsection{System przetwarzania cyfrowo-analogowego.}
+	{	Łącząc informacje przytoczone w poprzednich punktach można stworzyć ogólny diagram systemu przetwarzania cyfrowo-analogowego.
+		}
+	\begin{figure}[!htb]
+	\centering
+		\begin{tikzpicture}[auto]
+		\node [signal] (in) {Sygnał \\ cyfrowy};
+		\node [block, below of = in, node distance = 2cm] (fir) {FDP antyaliasing};
+		\node [block, below of = fir, node distance = 2cm] (converter) {Blok \\ konwersji C/A};
+		\node [block, below of = converter, node distance = 2 cm](sh){Układ próbkująco-pamiętający S\&H};
+		\node [block, below of = sh, node distance = 2 cm](afilter){FDP rekonstrukcja};
+		\node [signal, below of = afilter, node distance = 2cm] (out) {Sygnał analogowy};
+		
+		\draw [->] (in) -- node {} (fir);
+		\draw [->] (fir) -- node {} (converter);
+		\draw [->] (converter) -- node {} (sh);
+		\draw [->] (sh) -- node {} (afilter);
+		\draw [->] (afilter) -- node {} (out);
+		\end{tikzpicture}
+	\caption{Schemat blokowy systemu konwersji sygnału.}
+	\end{figure}
+	
+	
+	\section{Przegląd architektur konwerterów C/A. \cite{cmosanal} \cite{plassche}}
 	{	Dokonuje się kilku podziałów konwerterów. Ze względu na liczbę przetwarzanych bitów wyróżnia się: \textbf{szeregowe}, czyli takie, które dokonują konwersji słowa cyfrowego bit po bicie oraz \textbf{równoległe}, czyli takie, które dokonują konwersji całego słowa jednocześnie. Jeżeli sygnał wyjściowy przetwornika jest stały w czasie dla ustalonego i podtrzymywanego słowa cyfrowego, to nazywamy taki przetwornik \textbf{statycznym}, w przeciwieństwie do przetworników \textbf{dynamicznych}, których sygnał wyjściowy zanika i wymaga odświeżania. }
 	
 	{	\textbf{Przetwornik z modulacją szerokości impulsów} dokonuje porównania słowa cyfrowego z liniowo rosnącym cyfrowym słowem odniesienia. Wygenerowany w ten sposób impuls o szerokości zależnej od wartości przetwarzanego słowa poddawany jest filtracji dolnoprzepustowej. Do wad tego rozwiązania należą mała szybkośc przetwarzania i konieczność stosowania filtów o wysokim tłumieniu w paśmie zaporowym. }
@@ -101,32 +194,134 @@ minimum height=2cm, node distance=2cm]
 
 	{ 	\textbf{Przetworniki segmentowe} to przetworniki składające się z połączenia dwóch lub więcej przetworników. Zazwyczaj łączone są przetowrniki o małej liczbie bitów w większe, aby zwiększyć rozdzielczość. }
 
-	\section{Parametry statyczne przetworników C/A.(\textcolor{red}{Podać tylko te parametry, które będę mierzył.})}
-	{	\textbf{Zakres sygnału wyjściowego $FS$} to zakres wartości, które może przyjmować sygnał wyjściowy przetwornika.
-		$$
-		V_{out} \in \langle V_{out_{min}} ;  V_{out_{max}} \rangle
-		$$
-		
-		$$
-		FS = V_{out_{max}} - V_{out_{min}}
-		$$	
-	}
+	{	Na podstawie wymagań należy zaproponować architekturę urządzenia na podstawie analizy obecnego stanu wiedzy technicznej lub przeprowadzić zgrubne (często ręczne) obliczenia, potwierdzające spełnienie wymagań. Po zapoznaniu się z literaturą wybór padł na konwerter skalujący prąd. Najistotniejsze motywacje tego wyboru to prostota schematu, wysoka szybkość działania \cite{cmosanal} oraz fakt, że poprzednie prace uzyskały do 10 bitów rozdzielczości \cite{plassche}.	Autorzy \cite{cmosanal} jako główne wady podają duży rozmiar oraz duży rozstęp wielkości elementów.}
+	\section{Równoległy przetwornik skalujący prąd.}
 	
-	{	\textbf{Rozdzielczość } określa minimalną zmianę sygnału wyjściowego dla kolejnych słów cyfrowych. Odpowiada stosunkowi pełnego zakresu napięcia wyjściowego do liczby poziomów (różnych słów cyfrowych).
-		$$
-		
-		$$
-	}
+	{	Blokowy schemat konwertera skalującego prąd znajduje sie na rysunku \ref{currentscale}. Zasada działania jest następująca: słowo cyfrowe jest sygnałem sterującym sieć, która może wytwarzać prądy o różnych wartościach. Typowo, przypisuje się prądom wagi dwójkowe, a kolejne bity słowa cyfrowego decydują o włączeniu/wyłączeniu gałęzi prądowej, co oznacza, że po zsumowaniu prądów wyjściowych otrzymujemy prąd o wartości  bezwzględnej odpowiadającej wartości zakodowanej w słowie cyfrowym. W zależności od wymagań na sygnał wyjściowy, dokonuje się konwersji prądu wyjściowego na napięcie. }
 
-	{	\textbf{Dokładność względna} to odchylenie wartości sygnału wyjściowego w stanie ustalonym od teoretycznej prostej wyznaczonej przez pełny zakres przetwarzania. }
 
-	{	Sygnał wyjściowy przetwornika \textbf{monotonicznego} nie zmniejsza się dla wzrostu wejściowego słowa cyfrowego. }
-
-	{	\textbf{Przesunięcie zera} to wartość sygnału wyjściowego dla sygnału wejściowego o wartości zero. }
-
-	{ 	\textbf{Nieliniowość całkowa INL} to wartość bezwzględna sumy błędów nieliniowości dodatnich (lub ujemnych).}
+\begin{figure}[!htb]
+	\centering
+	\begin{tikzpicture}[auto]
+	\node [signal, node distance = 2cm] (digint) {N-bitowe słowo cyfrowe};
+	\node [block, below of = digint, node distance = 2cm] (network) {Sieć skalująca prąd};
+	\node [block, left of = network, node distance = 4cm] (iref1) {Źródło prądu referencyjnego};
+	\node [block, below of = network, node distance = 2cm] (conv) {Konwerter prąd/napięcie};
+	\node [block, left of = conv, node distance = 4cm] (vref1) {Źródło napięcia referencyjnego};
+	\node [signal, below of = conv, node distance = 2cm] (out) {Sygnał \\ analogowy};
 	
-	{ 	\textbf{Nieliniowość różniczkowa DNL} to zmiana sygnału wyjściowego w stosunku do LSB przy przejściu o jedno słowo cyfrowe obliczone dla każdego przejścia osobno. }
+	\draw [->] (iref1) -- node {$I_{ref}$} (network);
+	\draw [->] (digint) -- node {$B=\{b_0, b_1, \dots b_{N-1} \}$} (network);
+	\draw [->] (vref1) -- node {$V_{ref}$} (conv);
+	\draw [->] (network) -- node {$I_{out}=f(I_{ref},B)$} (conv);
+	\draw [->] (conv) -- node {$V_{out}=g(V_{ref},I_{out})$} (out);
+	\end{tikzpicture}
+	\caption{Schemat blokowy konwertera skalującego prąd.}
+\end{figure}
+
+	\section{Segmentowy równoległy przetwornik skalujący prąd.}
+{	
+	\begin{equation}
+	I_{out} = \sum_{i=0}^{N-1} b_i I_{i} = I_{ref} \sum_{i=0}^{N-1} b_i 2^{i}
+	\end{equation}
+	Zauważmy, że sumując wyjścia dwóch przetworników otrzymujemy w ogolności
+	\begin{equation}
+	I_{out,MN} = I_{out,M} + I_{out,N}
+	= I_{ref,M} \sum_{i=0}^{M-1} b_i 2^{i} + I_{ref,N} \sum_{i=0}^{N-1} b_i 2^{i}
+	\end{equation}
+	W szczególności, gdy zachodzi $I_{ref,N} = 2^M I_{ref} $:
+	\begin{equation}
+	I_{out,MN} = I_{ref,M}\left(\sum_{i=0}^{M-1} b_i 2^{i} + 2^M \sum_{i=0}^{N-1} b_i 2^{i}\right) 
+	\end{equation}
+	\begin{equation}
+	I_{out,MN} = I_{ref,M}\left(\sum_{i=0}^{M-1} b_i 2^{i} + \sum_{i=M}^{M+N-1} b_i 2^{i}\right) 
+	\end{equation}
+	\begin{equation}
+	I_{out,MN} = I_{ref,M} \sum_{i=0}^{M+N-1} b_i 2^{i}
+	\end{equation}
+	Jest to równoważne wyrażeniu na prąd wyjściowy konwertera o $M+N$ bitach rozdzielczości.
+	\begin{przyklad}{Niech dany będzie M=4 bitowy konwerter o prądzie referencyjnym $I_{ref,M}$. Sumując wyjście tego przetwornika z przetwornikiem o N=4 bitach i prądzie referencyjnym $ I_{ref,N} = 2^4 \cdot I_{ref,M} $, tworzy się przetwornik o $M+N=8$ bitach.}
+	\end{przyklad}	
+}
+
+	\section{Wymagania.}
+{	Projekt układu scalonego rozpoczyna się od sformułowania wymagań (specyfikacji) urządzenia lub systemu. Sformułowano następujące wymagania na przetwornik:
+	\begin{itemize}
+		\item zasilany ze źródła napięcia stałego o wartości 1.8V,
+		\item zaprojektowany w technologii CMOS AMS 180nm,
+		\item osiąga szybkość konwersji powyżej 4 milionów próbek na sekundę (MSPS),
+		\item ma 8-bitów rozdzielczości,
+		\item sygnał wyjściowy to sygnał napięciowy,
+		\item obciążenie ma charakter pojemnościowy.
+\end{itemize} }
+
+\section{Uwagi do przemyślenia.}
+{	Typową praktyką jest doposażenie konwertera w interfejs cyfrowy, aby ułatwić integrację przetwornika z pozostałymi blokami systemu. W przypadku projektowania przetworników, które samodzielnie tworzą układ scalony umieszcza się także standardowe interfejsy cyfrowe, np. SPI lub I2C. Ponadto, na rynku dostępne są konwertery wyposażone w rejestr kontrolny, który umożliwia wykorzystanie dodatkowych funkcjonalności np. programowania wzmocnienia sygnału wyjściowego, autotestowania lub autokalibracji. }
+
+{	Poprawnie zaprojektowane układy scalone charakteryzują się niewrażliwością na 3 istotne czynniki:
+	\begin{itemize}
+		\item rozrzut technologiczny (precyzja wykonania, niedopasowanie) parametrów elementów elektronicznych,
+		\item zmiana temperatury,
+		\item odchyłki napięcia zasilania od wartości nominalnej.
+	\end{itemize}
+}
+{	Kluczowym dla poprawnego działania konwertera skalowanego jest stabilne źródło napięcia odniesienia. Układy wytwarzane w technologii CMOS są wrażliwe na rorzut technologiczny parametrów elementów elektronicznych, zmieniają się ich właściwości pod wpływem zmian temperatury lub zmian wartości napięcia zasilania. Aby zapewnić stabilność napięcia odniesienia stosuje się układ bandgap. Na podstawie literatury w tej technologii można uzyskać źródła napięcia odniesienia niezależne od temperatury o wartości około $V_{REF}=1.1V$. Taką wartość napięcia referencyjnego przyjmiemy dla pozostałych bloków. }
+
+
+	
+
+	
+	\section{Parametry statyczne przetworników C/A.}
+	{	Sygnałem wejściowym dla N bitowego przetwornika cyfrowo analogowego jest słowo cyfrowe \\ $\mathcal{B}=\{b_{N-1},b_{N-2},...,b_0\}$. Bit $b_{N-1}$ nosi miano najstarszego bitu (MSB - Most Siginificant Bit), a bit $b_0$ najmłodszego (LSB - Least Siginificant Bit). Sygnał wyjściowy to analogowe napięcie lub prąd $\mathcal{S}$ przeskalowany przez sygnał referencyjny $V_{ref}$. Zależność pomiędzy sygnałem wyjściowym i wejściowym to wtedy:
+	\begin{equation}
+	\mathcal{S} = V_{ref}\mathcal{B} = V_{ref} {\sum_{k=0}^{N-1} b_k2^k}
+	\end{equation}	}
+	
+	\begin{notation}{Sygnał wyjściowy należy do zakresu:}
+		$$
+			S_{out} \in \langle S_{out_{min}} ;  S_{out_{max}} \rangle
+		$$
+	\end{notation}
+
+	\begin{definition}{Zakres sygnału wyjściowego FS to zakres wartości, które może przyjmować sygnał wyjściowy przetwornika.}
+		\begin{equation}
+			FS = S_{out_{max}} - S_{out_{min}}
+		\end{equation}
+	\end{definition}
+
+	\begin{definition}{Rozdzielczość R określa minimalną zmianę sygnału wyjściowego dla kolejnych słów cyfrowych. Odpowiada stosunkowi pełnego zakresu napięcia wyjściowego do liczby poziomów (różnych słów cyfrowych). }
+		\begin{equation}
+			R = \frac{FS}{2^{N}-1}		
+		\end{equation}
+	\end{definition}
+
+
+	\begin{definition}{Dokładność bezwzględna}
+		
+	\end{definition}
+	
+	\begin{definition}{Dokładność względna $\Delta$ to odchylenie wartości sygnału wyjściowego w stanie ustalonym od teoretycznej prostej wyznaczonej przez pełny zakres przetwarzania. }
+		
+	\end{definition}
+	
+	\begin{definition}{Sygnał wyjściowy przetwornika \textbf{monotonicznego} nie zmniejsza się dla wzrostu wejściowego słowa cyfrowego. }
+		
+	\end{definition}
+
+
+	\begin{definition}{Przesunięcie zera to wartość sygnału wyjściowego dla sygnału wejściowego o wartości zero. }
+	
+	\end{definition}
+
+
+	\begin{definition}{Nieliniowość całkowa INL to wartość bezwzględna sumy błędów nieliniowości dodatnich (lub ujemnych).}
+		
+	\end{definition}
+
+
+	\begin{definition}{Nieliniowość różniczkowa DNL to zmiana sygnału wyjściowego w stosunku do LSB przy przejściu o jedno słowo cyfrowe obliczone dla każdego przejścia osobno. }
+
+	\end{definition}	
 
 	\section{Parametry dynamiczne przetworników C/A.}
 	{ \textbf{\textcolor{red}{Wymienić resztę.}}
@@ -148,14 +343,10 @@ minimum height=2cm, node distance=2cm]
 			\item NFET,
 			\item NFETX,
 			\item PFET,
-			\item PFETX,
-%			\item NFETVTH,
-%			\item NFETVTHX,
-%			\item PFETVTH,
-%			\item PFETVTHX.
+			\item PFETX
 		\end{itemize}
    }
-	\section{Model tranzystora LV-FET z kanałem indukowanym do obliczeń ręcznych.}
+	\section{Model kwadratowy tranzystora LV-FET z kanałem indukowanym do obliczeń ręcznych.}
 	{ 	W pracy wykorzystywane są niskonapięciowe tranzystory polowe z kanałami indukowanymi typu n i p. Do obliczęń ręcznych wykorzystano uproszczony model kwadratowy. Wyróżnia się w nim obszary pracy tranzystora: odcięcia, triodowy (inaczej: nienasycenia, omowy), pentodowy (nasycenia). }
 	
 	{	Obszar odcięcia tranzystora NFET:
@@ -265,93 +456,305 @@ minimum height=2cm, node distance=2cm]
 	\section{Zakres temperatur.}
 	{	Proces został zakwalifikowany do zakresu temperatur złącza $-40^\circ C \leq T \leq 150^\circ C$. }
 
+	\chapter{Projekt wstępny.}
 
-	
-	\chapter{Zaprojektowany konwerter.}
-	\section{Metodologia projektowania.}
-	{	Projekt układu scalonego rozpoczyna się od sformułowania wymagań (specyfikacji) urządzenia lub systemu. W temacie niniejszej pracy 	sformułowano następujące wymagania na przetwornik:
-		\begin{itemize}
-			\item zasilany ze źródła napięcia stałego o wartości 1.8V,
-			\item zaprojektowany w technologii CMOS AMS 180nm,
-			\item osiąga szybkość konwersji powyżej 4 milionów próbek na sekundę (MSPS),
-			\item ma 8-bitów rozdzielczości.
-		\end{itemize} 
-	Ponadto, projektant doprecyzował następujące parametry:
-		\begin{itemize}
-			\item sygnał wyjściowy to sygnał napięciowy o zakresie co najmniej od 0V do 1V,
-			\item dopuszczalne obciążenie ma charakter rezystancyjny o minimalnej wartości $50\Omega$.
-		\end{itemize} }
-	
-	{	Na podstawie wymagań należy zaproponować architekturę urządzenia na podstawie analizy obecnego stanu wiedzy technicznej lub przeprowadzić zgrubne (często ręczne) obliczenia, potwierdzające spełnienie wymagań. Po zapoznaniu się z literaturą wybór padł na konwerter skalujący prąd. Najistotniejsze motywacje tego wyboru to prostota schematu, wysoka szybkość działania \cite{cmosanal} oraz fakt, że poprzednie prace uzyskały do 10 bitów rozdzielczości \cite{plassche}.	Autorzy \cite{cmosanal} jako główne wady podają duży rozmiar oraz duży rozstęp wielkości elementów.}
-	
-	{	Blokowy schemat konwertera skalującego prąd znajduje sie na rysunku \ref{currentscale}. \textcolor{red}{Na rysunku są 4 prądy, można uogólnić ten obrazek lub dostosować do 8-bit?} Zasada działania jest następująca: słowo cyfrowe jest sygnałem sterującym sieć, która może wytwarzać prądy o różnych wartościach. Typowo, przypisuje sie prądom wagi dwójkowe, a kolejne bity słowa cyfrowego decydują o włączeniu/wyłączeniu gałęzi prądowej, co oznacza, że po zsumowaniu prądów wyjściowych otrzymujemy prąd o wartości  bezwzględnej równej wartości zakodowanej w słowie cyfrowym. W zależności od wymagań na sygnał wyjściowy, dokonuje się konwersji prądu wyjściowego na napięcie. 
-	
-		\img{20}{../visio/currentscale.pdf}{Schemat blokowy konwertera skalującego prąd}{currentscale}	}
 
-	\begin{tikzpicture}[auto]
-	\node [block] (network) {Sieć skalująca prąd};
- 	\draw[<-] ([xshift=0pt,yshift=0pt]network.west)  -- node[above, xshift=-40pt]{n-bitowe słowo cyfrowe} ++(-4em,0em);
- 	\draw[<-] ([yshift=0pt]network.north)  -- node[left]{Napięcie referencyjne} ++(0em,+4em);
-		%\draw ;
-	\end{tikzpicture}
+	\section{Zaproponowana architektura.}
+	{	Zaproponowano przetwornik równoległy, skalujący prąd oparty o sieć luster prądowych, złożony z dwóch kaskadowo połączonych przetworników 4-bitowych. Prąd referencyjny $I_{ref}$ przepływający przez tranzystor $M_0$ jest replikowany przez tranzystory $M_1, M_2, \dots M_N$ ze współczynnikami binarnymi $1,2,\dots, 2^{N-1}$. Wzmacniacze $A_1$ i $A_2$ służą stabilizacji napięć dren źródło, niezbędne dla prawidłowej pracy luster prądowych. Tranzystory $K_1, K_2, \dots K_N$ służą za klucze. Prądy gałęzi są sumowane w węźle $A_1.-$ i konwertowane na napięcie na rezystorze $R$. W dalszej części pracy przeanalizowano 3 istotne fragmenty tego układu: lustra prądowe, klucze i wzmacniacze operacyjne. Wyprowadzono podstawowe zależności, które decydują o wymaganiach dotyczących wymienionych elementów.}
 
-	{	Typową praktyką jest doposażenie konwertera w rejestr wejściowy, aby ułatwić integrację przetwornika z innymi, cyfrowymi blokami systemu. W przypadku projektowania przetworników, które samodzielnie tworzą układ scalony umieszcza się także standardowe interfejsy cyfrowe, np. SPI lub I2C. Ponadto, na rynku dostępne są konwertery wyposażone w rejestr kontrolny, który umożliwia wykorzystanie dodatkowych funkcjonalności np. programowania wzmocnienia sygnału wyjściowego, autotestowania lub autokalibracji.
-		\img{20}{../visio/blokschkonca.pdf}{Blokowy schemat konwertera C/A.}{blokschkonca} }
-
-	{	Poprawnie zaprojektowane układy scalone charakteryzują się niewrażliwością na 3 istotne czynniki:
-		\begin{itemize}
-			\item rozrzut technologiczny (precyzja wykonania, niedopasowanie) parametrów elementów elektronicznych,
-			\item zmiana temperatury,
-			\item odchyłki napięcia zasilania od wartości nominalnej.
-		\end{itemize}
-		Wszystkie wymienione tu czynniki zostały zaadresowane w niniejszej pracy. }
-	
-
-	\chapter{Schemat elektryczny.}
-	\section{Układ bandgap.}
-	{	Kluczowym dla poprawnego działania konwertera skalowanego jest stabilne źródło napięcia odniesienia. Układy wytwarzane w technologii CMOS są wrażliwe na rorzut technologiczny parametrów elementów elektronicznych, zmieniają się ich właściwości pod wpływem zmian temperatury lub zmian wartości napięcia zasilania. Aby zapewnić stabilność napięcia odniesienia stosuje się układ bandgap. }
-	
-	{ 	Na podstawie literatury w tej technologii można uzyskać źródła napięcia odniesienia niezależne od temperatury o wartości około $V_{REF}=1.1V$. Taką wartość napięcia referencyjnego przyjmiemy dla pozostałych bloków. }
-	
-	\section{Sieć ważonych prądów.}
-	
-	{ Ogólny schemat sieci ważonych prądów został zaczerpnięty z \cite{cmosanal}. Ponizej dokonano szczegółowej analizy. Należy zauważyć, że napięcie potencjał źródeł tranzystorów w lustrach prądowych jest ujemne na schemacie w \cite{cmosanal}. Do aplikacji opsianej w tej pracy należy zmodyfikować schemat... Napięcia referencyjne ustalimy na $ \frac{1}{2}V_{REF}$.
-	
-	\begin{circuitikz}
+	\begin{figure}[!htb]
+	\centering
+	\begin{circuitikz}[scale = 0.6]
+%		\draw [gray, color=gray] (0,-1) grid (20,10);
 		\draw [color=black, thick]
-		%Ground
-		(0,0) node[circ]{}
-		(0,0) node[ground]{} 
-		(0,6) node[]{\large{\textbf{$V_{ref}$}}}
-		(0,1) node[nmos, rotate =180, label={ [centered,xshift=-10, yshift = 10] {$M_0$} } ](m0){}
-		(0,5.5) to[short,o-] (m0.S)
-		(0,0) to[short] (m0.D)
-		%Ground line
-		(0,0) to[short,-] (16,0)
-		(m0.G) to[short] (15,1)
-		%Vref label
-		(10,6) node[]{\large{\textbf{$V_{ref}$}}}
-		;
-		\foreach \x in {1,...,8}
+		% Devices
+		(2, 2) node[op amp, rotate = 270] (opamp) {$A_1$}
+		(18, 7) node[op amp] (opamp2) {$A_2$}
+		(4, 1) node[nmos, rotate =180, label={ [centered,xshift=-10, yshift = 10] {$M_0$} } ](m0){};
+		\foreach \x in {1,...,4}
 		{
-			\pgfmathsetmacro{\offsetx}{int(2*\x)};
+			\pgfmathsetmacro{\offsetx}{int(3*\x+5)};
 			\draw [color=black, thick]
 			(\offsetx,1) node[nmos, label={ [centered,xshift=10, yshift = 10] {$M_\x$} } ](m\x){}
-			(\offsetx,0) to[short,*-] (m\x.S)
 			(\offsetx,3) node[nmos, label={ [centered,xshift=10, yshift = 10] {$K_\x$} } ](k\x){}
-			(\offsetx-1,3) to[short,o-] (k\x.G)
-			(m\x.D) to[short] (k\x.S)
+			(k\x.D) to [short] (\offsetx,5)
 			;
 		}
-		\foreach \x in {1,...,7}
-		{
-			\pgfmathsetmacro{\incx}{int(\x+1)};
-			\draw (k\x.D) to[short,*-*] (k\incx.D);
-		}
-		\draw
-		(k5.D) to[short,*-o] (10,5.5)
+		\draw[color=black, thick]
+		% Ports
+		(opamp.+) to [short, -o](1.2,5)
+		(opamp.-) to [short](2.7,4)
+		(opamp.out) to [short](2,0)
+		(2,0) to [short](17,0)
+		(5,1) to [short](16,1)
+		(2.66,4) to [short](4,4)
+		(4,4) to [short](4,2)
+		(1.5,6) node[]{\large{\textbf{$V_{ref}$}}}
+		(8,5) to [short](17,5)
+		(12,5) to [short](12,7.7)
+		(12,7.7) to[short](opamp2.-)
+		(15,6.2) to[short,o-](opamp2.+)
+		(14,6.2) node[]{\large{\textbf{$V_{ref}$}}}
+		(14,7.7) to [short] (14,10)
+		(14,10) to[R=$R$] (20,10)
+		(20,10) to[short](20,7)
+		(20,7) to[short](opamp2.out)
+		(4,9) to [I=${I_{ref}}$] (4,4)
 		;
+		
 	\end{circuitikz}
+	\caption{4-bitowy przetwornik C/A.}
+\end{figure}
+
+	\section{Badanie luster prądowych.}
+	{	W pierwszej kolejności wykonano symulacje 4 luster prądowych stabilizowanych idealnymi wzmacniaczami operacyjnymi bez kluczy, celem wyznaczenia minimalnych rozmiarów tranzystorów  $M_1, M_2, M_3, M_4$. Konwerter będzie działał poprawnie, gdy błąd replikacji prądów będzie mniejszy niż połowa LSB. Błąd obliczano:}
+	\begin{equation}
+		\delta I = \frac{I_{out,measure} - I_{out,ideal}}{I_{ref}} = \frac{I_{out,measure} - 15 I_{ref}}{I_{ref}}
+	\end{equation}
+	\subsection{Wpływ prądu referenyjnego na błąd replikacji prądu.}
+	{ Wykonano symulację DC dla następujących parametrów:
+	\begin{itemize}
+		\item $A_d = 100M$, $V_{off} = 0V$
+		\item $I_{ref} = 100nA$, $V_{ref} = 900mV$
+		\item $L_0 = 1.8\mu$, $W_0 = 3.6\mu$
+	\end{itemize} }
+	
+	\begin{figure}[!htb]
+	\centering
+	\begin{tikzpicture}
+	\begin{axis}[
+	width=0.6\linewidth, % Scale the plot to \linewidth
+	grid=major, % Display a grid
+	grid style={dashed,gray!30}, % Set the style
+	xlabel=$ I_{ref} $, % Set the labels
+	ylabel=$ \delta I$ ,
+	legend style={at={(0.5,-0.2)},anchor=north}, % Put the legend below the plot
+	x tick label style={anchor=north} % Display labels sideways
+	]
+	\addplot[only marks, mark=star, blue] table [x={I}, y={error}, col sep=comma]{\detokenize{1_sweep_iref.csv}};
+	\end{axis}
+	\end{tikzpicture}
+	\caption{Błąd replikacji prądu wyrażony w LSB.}
+	\end{figure}
+	
+	\begin{wniosek}{ Błąd replikacji jest odwrotnie proporcjonalny do prądu referencyjnego.}
+	\end{wniosek}
+
+	\subsection{Wpływ napięcia referenyjnego na błąd replikacji prądu.}
+		{ Wykonano symulację DC dla następujących parametrów:
+		\begin{itemize}
+		\item $A_d = 100M$, $V_{off} = 0V$
+		\item $I_{ref} = 100nA$, $V_{ref} = 900mV$
+		\item $L_0 = 1.8\mu$, $W_0 = 3.6\mu$
+	\end{itemize} }
+	
+	\begin{figure}[!htb]
+		\centering
+		\begin{tikzpicture}
+		\begin{axis}[
+		width=0.6\linewidth, % Scale the plot to \linewidth
+		grid=major, % Display a grid
+		grid style={dashed,gray!30}, % Set the style
+		xlabel=$ V_{ref} $, % Set the labels
+		ylabel=$ \delta I$ ,
+		legend style={at={(0.5,-0.2)},anchor=north}, % Put the legend below the plot
+		x tick label style={anchor=north} % Display labels sideways
+		]
+		\addplot[only marks, mark=star, blue] table [x={I}, y={error}, col sep=comma]{\detokenize{2_sweep_vref.csv}};
+		\end{axis}
+		\end{tikzpicture}
+		\caption{Błąd replikacji prądu wyrażony w LSB.}
+	\end{figure}
+	
+	\begin{wniosek}{ Błąd replikacji jest słabo zależny od napięcia referencyjnego.}
+	\end{wniosek}
+	
+	\subsection{Wpływ szerokości tranzystorów na błąd replikacji prądu.}
+	{ Wykonano symulację DC dla następujących parametrów:
+		\begin{itemize}
+			\item $A_d = 100M$, $V_{off} = 0V$
+			\item $I_{ref} = 100nA$, $V_{ref} = 900mV$
+			\item $L_0 = 1\mu$, $W_0 = 1\mu$
+	\end{itemize} }
+		\begin{figure}[!htb]
+		\centering
+		\begin{tikzpicture}
+		\begin{axis}[
+		width=0.6\linewidth, % Scale the plot to \linewidth
+		grid=major, % Display a grid
+		grid style={dashed,gray!30}, % Set the style
+		xlabel=$ I_{ref} $, % Set the labels
+		ylabel=$ \delta I$,
+		legend style={at={(0.5,-0.2)},anchor=north}, % Put the legend below the plot
+		x tick label style={anchor=north} % Display labels sideways
+		]
+		\addplot[only marks, mark=star, blue] table [x={error (W0=1e-06) X}, y={error (W0=1e-06) Y}, col sep=comma]{\detokenize{3_step_W.csv}};
+		\addplot[only marks, mark=star, red] table [x={error (W0=1.066667e-05) X}, y={error (W0=1.066667e-05) Y}, col sep=comma]{\detokenize{3_step_W.csv}};
+		\addplot[only marks, mark=star, black] table [x={error (W0=2.033333e-05) X}, y={error (W0=2.033333e-05) Y}, col sep=comma]{\detokenize{3_step_W.csv}};
+		\addplot[only marks, mark=star, green] table [x={error (W0=3e-05) X}, y={error (W0=3e-05) Y}, col sep=comma]{\detokenize{3_step_W.csv}};
+		\end{axis}
+		\end{tikzpicture}
+		\caption{Błąd replikacji prądu wyrażony w LSB dla różnych szerokości.}
+	\end{figure}
+
+	
+	\begin{wniosek}{ Błąd replikacji jest mniejszy dla tranzystorów o mniejszej szerokości.}
+	\end{wniosek}
+	
+	\subsection{Wpływ długości tranzystorów na błąd replikacji prądu.}
+	{ Wykonano symulację DC dla następujących parametrów:
+		\begin{itemize}
+			\item $A_d = 100M$, $V_{off} = 0V$
+			\item $I_{ref} = 100nA$, $V_{ref} = 900mV$
+			\item $L_0 = 1\mu$, $W_0 = 1\mu$
+	\end{itemize} }
+	
+	
+	\begin{figure}[!htb]
+	\centering
+	\begin{tikzpicture}
+	\begin{axis}[
+	width=0.6\linewidth, % Scale the plot to \linewidth
+	grid=major, % Display a grid
+	grid style={dashed,gray!30}, % Set the style
+	xlabel=$ I_{ref} $, % Set the labels
+	ylabel=$ \delta I$,
+	legend style={at={(0.5,-0.2)},anchor=north}, % Put the legend below the plot
+	x tick label style={anchor=north} % Display labels sideways
+	]
+	\addplot[only marks, mark=star, blue] table [x={error (L0=1e-06) X}, y={error (L0=1e-06) Y}, col sep=comma]{\detokenize{4_step_L.csv}};
+	\addplot[only marks, mark=star, red] table [x={error (L0=5.666667e-06) X}, y={error (L0=5.666667e-06) Y}, col sep=comma]{\detokenize{4_step_L.csv}};
+	\addplot[only marks, mark=star, black] table [x={error (L0=1.033333e-05) X}, y={error (L0=1.033333e-05) Y}, col sep=comma]{\detokenize{4_step_L.csv}};
+	\addplot[only marks, mark=star, green] table [x={error (L0=1.5e-05) X}, y={error (L0=1.5e-05) Y}, col sep=comma]{\detokenize{4_step_L.csv}};
+	\end{axis}
+	\end{tikzpicture}
+	\caption{Błąd replikacji prądu wyrażony w LSB dla różnych długości.}
+\end{figure}
+
+	
+	\begin{wniosek}{ Błąd replikacji jest mniejszy dla tranzystorów o większej długości.}
+	\end{wniosek}
+
+	\subsection{Wstępny wybór L i W.}
+	
+		{ Wykonano symulację DC dla następujących parametrów:
+		\begin{itemize}
+			\item $A_d = 100M$, $V_{off} = 0V$
+			\item $I_{ref} = 100nA$, $V_{ref} = 900mV$
+			\item $L_0 = 10.8\mu$, $W_0 = 1\mu$
+	\end{itemize} }
+	
+	
+	\begin{figure}[!htb]
+		\centering
+		\begin{tikzpicture}
+		\begin{axis}[
+		width=0.6\linewidth, % Scale the plot to \linewidth
+		grid=major, % Display a grid
+		grid style={dashed,gray!30}, % Set the style
+		xlabel=$ I_{ref} $, % Set the labels
+		ylabel=$ \delta I$,
+		legend style={at={(0.5,-0.2)},anchor=north}, % Put the legend below the plot
+		x tick label style={anchor=north} % Display labels sideways
+		]
+		\addplot[only marks, mark=star, blue] table [x={I}, y={error}, col sep=comma]{\detokenize{5_final_LW.csv}};
+		\end{axis}
+		\end{tikzpicture}
+		\caption{Błąd replikacji prądu wyrażony w LSB dla wybranego W/L.}
+	\end{figure}
+	
+	
+	\begin{wniosek}{ Dla całego zakresu prądu błąd jest poniżej połowy LSB.}
+	\end{wniosek}
+	
+	\subsection{Sizing klucza.}
+
+	{ Wykonano symulację DC dla następujących parametrów:
+		\begin{itemize}
+			\item $A_d = 100M$, $V_{off} = 0V$
+			\item $I_{ref} = 100nA$, $V_{ref} = 900mV$
+			\item $L_0 = 10.8\mu$, $W_0 = 1\mu$
+			\item $W_K = 1\mu$, $L_K = 0.18\mu$
+	\end{itemize} }
+	
+	
+	\begin{figure}[!htb]
+		\centering
+		\begin{tikzpicture}
+		\begin{axis}[
+		width=0.6\linewidth, % Scale the plot to \linewidth
+		grid=major, % Display a grid
+		grid style={dashed,gray!30}, % Set the style
+		xlabel=$ I_{ref} $, % Set the labels
+		ylabel=$ \delta I$,
+		legend style={at={(0.5,-0.2)},anchor=north}, % Put the legend below the plot
+		x tick label style={anchor=north} % Display labels sideways
+		]
+		\addplot[only marks, mark=star, blue] table [x={error (WK=5e-07) X}, y={error (WK=5e-07) Y}, col sep=comma]{\detokenize{6_step_WK.csv}};
+		\addplot[only marks, mark=star, red] table [x={error (WK=7.5e-07) X}, y={error (WK=7.5e-07) Y}, col sep=comma]{\detokenize{6_step_WK.csv}};
+		\addplot[only marks, mark=star, black] table [x={error (WK=1e-06) X}, y={error (WK=1e-06) Y}, col sep=comma]{\detokenize{6_step_WK.csv}};
+		\end{axis}
+		\end{tikzpicture}
+		\caption{Błąd replikacji prądu wyrażony w LSB dla wybranego W/L.}
+	\end{figure}
+	
+	\subsection{Symulacja kaskady x2}
+	{ Wykonano symulację DC dla następujących parametrów:
+		\begin{itemize}
+			\item $A_d = 100M$, $V_{off} = 0V$
+			\item $I_{ref} = 100nA$, $V_{ref} = 900mV$
+			\item $L_0 = 10.8\mu$, $W_0 = 1\mu$
+			\item $W_K = 1\mu$, $L_K = 0.18\mu$
+	\end{itemize} }
+	
+	
+	\begin{figure}[!htb]
+		\centering
+		\begin{tikzpicture}
+		\begin{axis}[
+		width=0.6\linewidth, % Scale the plot to \linewidth
+		grid=major, % Display a grid
+		grid style={dashed,gray!30}, % Set the style
+		xlabel=$ I_{ref} $, % Set the labels
+		ylabel=$ \delta I$,
+		legend style={at={(0.5,-0.2)},anchor=north}, % Put the legend below the plot
+		x tick label style={anchor=north} % Display labels sideways
+		]
+		\addplot[only marks, mark=star, blue] table [x={I}, y={error}, col sep=comma]{\detokenize{7_sweep_iref_double.csv}};
+		\end{axis}
+		\end{tikzpicture}
+		\caption{Błąd replikacji prądu wyrażony w LSB dla wybranego W/L. Czy to jest dobre .csv powtorzyć.}
+	\end{figure}
+	
+	\begin{wniosek}{}
+		\begin{equation}
+			\delta I_{cascade}(I_{ref}) >> \delta I_{single}(I_{ref}) + \delta I_{single}(16*I_{ref}) 
+		\end{equation}
+	\end{wniosek}
+
+	\subsection{Zwiększenie L.}
+	
+	\subsection{Komentarz output range of amplifier.}
+	
+	\subsection{Powierzchnia konwertera.}
+	{	Na tym etapie warto zauważyć, że wyłącznie powierzchnia tranzystorów w lustrze prądowym staje się znacząca. Zakładając optymistycznie, że rozmiar tranzystora to wyłącznie powierzchnia kanału $A=W*L$, powierzchnia luster prądowych wynosi:
+	\begin{equation}
+		A = 2 \left( W_0 \cdot L_0 + \sum_{i=0}^{3}2^i W_0 \cdot L_0 \right) = 32 W_0 \cdot L_0
+	\end{equation}
+	Jeżeli ta powierzchnia okazuje się nieakceptowalna ze względu na cenę lub dostępną wolną powierzchnią w większym systemie, należy rozważyć inne architektury.
+	}
+	
+	\section{Projekt wzmacniacza operacyjnego}
+	{	Projekt przetwornika wymaga przygotowania wzmacniaczy operacyjnych. Poniżej przedstawiono projekt wzmacniacza ogólnego przeznaczenia. Stopień wejściowy to para różnicowa obciążona aktywnie. Drugi stopień to inwerter.}
+	{	Plan testowania wzmacniacza operacyjnego:
+		\begin{enumerate}
+			\item Wyznacz napięcie niezrównoważenia $V_{off}$.
+				\subitem Schemat do pomiaru: 
+			\item Wyznacz ICMR.
+				\subitem Dla skrajnych ICMR wszystkie tranzystory są w nasyceniu.
+			\item Chtyka częstotliwościowa - $A_v(0)$, $f_{pole}$, $\phi_{margin}$
+			\item PSRR, CMRR
+		\end{enumerate}
 	}
 
 	\subsection{Konwersja prądu na napięcie przy pomocy pojedynczego tranzystora.}
@@ -394,7 +797,9 @@ minimum height=2cm, node distance=2cm]
 	}
 
 	\subsection{Konwersja prądu na napięcie przy pomocy tranzystora i wzmacniacza operacyjnego.}
-		\begin{center}
+	
+	\begin{figure}
+		\centering
 		\begin{circuitikz}
 			\draw [color=black, thick]
 			%Ground
@@ -420,6 +825,11 @@ minimum height=2cm, node distance=2cm]
 			(4.5,1) node[]{\large{\textbf{$V_{out}$}}}
 			;
 		\end{circuitikz}
+	\caption{Konwersja z wzmacniaczem.}
+	\end{figure}
+		
+	
+		
 	
 	{ Wzmacniacz operacyjny w pętli sprzężenia zwrotnego wymusi potencjał masy na wejściu minus. Biorąc dane z modelu do obliczeń ręcznych i dla rysunku powyżej, z \ref{eq_cutoff} otrzymujemy nierówność:
 		$$
@@ -434,64 +844,26 @@ minimum height=2cm, node distance=2cm]
 		V_s = -0.839V
 		$$
 	}
-	\end{center}
+
 
 	\subsection{Analiza lustra prądowego z kluczem z pojedynczego nMOSFET.}
 	{ Projektując lustro prądowe, należy zadbać, aby tranzystory były w obszarze aktywnym, czyli:
 		\begin{equation} \label{eq_cutoff}
-		V_{gs} > V_{th,n}
+			V_{GS} > V_{TH,n}
 		\end{equation}
 		oraz
 		\begin{equation} \label{eq_saturation}
-		V_{ds} \ge V_{gs} - V_{th,n}
+			V_{DS} \ge V_{GS} - V_{TG,n}
 		\end{equation}
-		Ze względu na połączenie drenu i bramki \ref{eq_saturation} jest zawsze prawdą.
+	Prąd 
+		\begin{equation}
+			I_{D} = \beta \left( V_{GS} - V_{TH,n} \right)^2 \left(1+\lambda V_{DS} \right)
+		\end{equation}
+	Zakładając, że wzmacniacz ustali $V_{GS}$ obu tranzystorów w lustrze na ten sam poziom:
+		\begin{equation}
+			\frac{I_o}{I_{ref}} = \frac{\left(1+\lambda V_{DS,1} \right)}{\left(1+\lambda V_{GS,0} \right)}
+		\end{equation}
 	}
-	\subsection{Dobór długości kanału na podstawie charakterystyk niedopasowania.}
-	{	Producent technologii dostarcza wzory opisujące odchylenie standardowe parametrów urządzeń, które zostały zaprojektowane jako identyczne. Do generacji prądów o binarnych wagach wykorzystujemy lustra prądowe, składające się z kolejno $1, 2, 4,..., 2^{N-1}$. Błąd napięciowego sygnału wyjściowego musi być mniejszy niż $\frac{LSB}{2}$. Zakładając, że napięciowy sygnał wejściowy jest proporcjonalny do sumy tych prądów:
-		\begin{equation}
-		V_{out} = A \sum_{i=0}^{N-1} b_{i}I_{i}
-		\end{equation}
-	LSB dla konwertera wynosi, gdzie FS oznacza pełen zakres sygnału wyjściowego:
-		\begin{equation}
-			LSB_v = \frac{FS_Vout}{2^{N-1}}
-		\end{equation}
-	Dla prądów:
-		\begin{equation}
-			LSB_i = \frac{LSB_v}{A}
-		\end{equation}
-
-	W związku z tym faktem zakłada się, że błąd każdego z prądów również musi być mniejszy od $\frac{LSB}{2}$. Prąd i-tej gałęzi jest sumą $2^{i}$ prądów, przepływających przez $2^{i}$ identycznych tranzystorów. Aby błąd sumarycznego prądu każdej gałęzi był mniejszy niż LSB/2, suma błędów niedopasowania wszystkich tranzystorów w każdej gałęzi musi być mniejsza niż LSB/2. 
-		\begin{equation}
-			\sigma \left( \Delta I_{i,ds} \right) < \frac{LSB_i}{2}
-		\end{equation}
-	Łatwo zauważyć, że największy błąd jest dla ostatniej gałęzi z największą liczbą tranzystorów: $n=2^{N-1}=2^7$. Minimalny prąd referencyjny w pierwszej gałęzi ma wartość LSB.
-		\begin{equation}
-		n \sigma \left( \Delta I_{N-1,ds} \right) LSB_i = 2^{N-1} \sigma \left( \Delta I_{N-1,ds} \right) LSB_i < \frac{LSB_i}{2}
-		\end{equation}
-
-		\begin{equation}
-			\sigma \left( \Delta I_{N-1,ds} \right) < 2^{-N}
-		\end{equation}
-
-	Z cite{AMSmatching} mamy:
-		\begin{equation}
-			\sigma^2 \left( \frac{\Delta I_{ds}}{I_{ds}}\right) = 	\sigma^2 \left( \frac{\Delta \mu}{\mu}\right) + \sigma^2 \left( \frac{2\Delta V_T}{V_{gs} - V_{T}}\right)
-		\end{equation}
-		
-		\begin{equation}
-			3 \sigma \left(\Delta \mu \right) = \frac{ \sqrt{2} A_{\beta}  } { \sqrt{ \left(W-A_{\beta W}\right)\left(L-A_{\beta} L\right)}}
-		\end{equation}
-
-		\begin{equation}
-		3 \sigma \left(\Delta V_T \right) = \frac{ \sqrt{2} A_{V_T}  } { \sqrt{ \left(W-A_{VTW}\right)\left(L-A_{VTL}\right)}}
-		\end{equation}
-	Wykreślmy błąd prądu przy pomocy Octave, znajdziemy minimalne L.
-		
-	}
-	
-
-
 
 	\subsection{Źródło napięcia referencyjnego zbudowane z dwóch tranzystorów.}
 	obwód generacji napięcia odniesienia jak z rysunku...
@@ -562,9 +934,6 @@ minimum height=2cm, node distance=2cm]
 	V_{out} =\frac{1}{2} V_{dd}
 	\end{equation}
 	
-	\section{Wyjściowy wzmacniacz transkonduktancyjny.}
-
-
 	\begin{circuitikz}
 		\draw [color=black, thick]
 			(0, 0) node[op amp] (opamp) {}
@@ -574,15 +943,50 @@ minimum height=2cm, node distance=2cm]
 			to[short,-*] (opamp.out)
 			;
 	\end{circuitikz}
+	\section{Wnioski z projektu wstępnego.}
+	\begin{wniosek}{Zwiększanie prądu referencyjnego oznacza większy $V_{DS,sat}$, co z kolei oznacza, że wyjście wzmacniacza $A_1$ musi się obniżyć mocniej. To oznacza trudniejsze wymaganie na zakres napięć wyjściowych.}
+	\end{wniosek}
+	\begin{wniosek}{Zwiększanie napięcia referencyjnego, aby skompensować niskie wyjście wzmacniacza $A_1$ oznacza, że wyjście wzmacniacza $A_2$ będzie musiało z kolei pójść mocniej w górę.}
+	\end{wniosek}
+	\begin{wniosek}{Segmentowe połączenie pozwala nie tylko zmniejszyć minimalne L0, ale też łączną liczbę tranzystorów, potrzebnych do wykonanania zadania.}
+	\end{wniosek}
+	\begin{wniosek}{}
+	\end{wniosek}
 
-	\chapter{Symulacje i pomiary parametrów.}
-	\section{Układ testujący do wyznaczenia x.}
+	\chapter{Pomiary parametrów konwertera.}
+	{ Do przeprowadzenia pomiarów konwertera przygotowano modele w Verilog-AMS. 
+	\begin{itemize}
+		\item Idealny 8-bitowy DAC,
+		\item cyfrowy generator 8-bitowych słów : sinus i pełen zakres
+		\item Idealny 10-bitowy ADC,
+		\item 10-bitowy subtraktor cyfrowy
+	\end{itemize}}
+	\section{Architektura testu.}
+	{ }
+		\begin{figure}[!htb]
+		\centering
+		\begin{tikzpicture}[auto]
+		\node [block, node distance = 2cm] (fir) {Generator cyfrowy};
+		\node [block, below of = fir, node distance = 2cm] (converter) {8-bit DAC};
+		\node [block, below of = converter, node distance = 2 cm](sh){10-bit ADC};
+		\node [block, below of = sh, node distance = 2 cm](afilter){Subtraktor};
+		\node [signal, below of = afilter, node distance = 2cm] (out) {Błąd};
+		
+		\draw [->] (fir) -- node {} (converter);
+		\draw [->] (converter) -- node {} (sh);
+		\draw [->] (sh) -- node {} (afilter);
+		\draw [->] (afilter) -- node {} (out);
+		\end{tikzpicture}
+		\caption{Schemat blokowy systemu konwersji sygnału.}
+	\end{figure}
+
+
 	\section{Układ testujący do wyznaczenia y.}
 	\section{Układ testujący do wyznaczenia z.}
 	
 	\chapter{Projekt fizyczny.}
 	\section{Hierarchizacja projektu.}
-	\section{Widok topografii układu bandgap.}
+	\section{Widok topografii.}
 	\section{Widok topografii układu 2.}
 	\section{Widok topografii układu 3.}
 	\section{Widok topografii układu 4.}
@@ -597,7 +1001,58 @@ minimum height=2cm, node distance=2cm]
 	
 	\appendix
 	%insert chapters	
-.
+.	\chapter{Modele AMS}
+	\section{Idealny 8-bit DAC.}
+	\section{Idealny 10-bit ADC.}
+	\section{Generator cyfrowy.}
+	
+	\chapter{Weryfikacja doboru długości kanału na podstawie charakterystyk niedopasowania.}
+	{	Producent technologii dostarcza wzory opisujące odchylenie standardowe parametrów urządzeń, które zostały zaprojektowane jako identyczne. Do generacji prądów o binarnych wagach wykorzystujemy lustra prądowe, składające się z kolejno $1, 2, 4,..., 2^{N-1}$. Błąd napięciowego sygnału wyjściowego musi być mniejszy niż $\frac{LSB}{2}$. Zakładając, że napięciowy sygnał wejściowy jest proporcjonalny do sumy tych prądów:
+		\begin{equation}
+		V_{out} = A \sum_{i=0}^{N-1} b_{i}I_{i}
+		\end{equation}
+		LSB dla konwertera wynosi, gdzie FS oznacza pełen zakres sygnału wyjściowego:
+		\begin{equation}
+		LSB_v = \frac{FS_Vout}{2^{N-1}}
+		\end{equation}
+		Dla prądów:
+		\begin{equation}
+		LSB_i = \frac{LSB_v}{A}
+		\end{equation}
+		
+		W związku z tym faktem zakłada się, że błąd każdego z prądów również musi być mniejszy od $\frac{LSB}{2}$. Prąd i-tej gałęzi jest sumą $2^{i}$ prądów, przepływających przez $2^{i}$ identycznych tranzystorów. Aby błąd sumarycznego prądu każdej gałęzi był mniejszy niż LSB/2, suma błędów niedopasowania wszystkich tranzystorów w każdej gałęzi musi być mniejsza niż LSB/2. 
+		\begin{equation}
+		\sigma \left( \Delta I_{i,ds} \right) < \frac{LSB_i}{2}
+		\end{equation}
+		Łatwo zauważyć, że największy błąd jest dla ostatniej gałęzi z największą liczbą tranzystorów: $n=2^{N-1}=2^7$. Minimalny prąd referencyjny w pierwszej gałęzi ma wartość LSB.
+		\begin{equation}
+		n \sigma \left( \Delta I_{N-1,ds} \right) LSB_i = 2^{N-1} \sigma \left( \Delta I_{N-1,ds} \right) LSB_i < \frac{LSB_i}{2}
+		\end{equation}
+		
+		\begin{equation}
+		\sigma \left( \Delta I_{N-1,ds} \right) < 2^{-N}
+		\end{equation}
+		
+		Z \cite{ams_match_params} mamy:
+		\begin{equation}
+		\sigma^2 \left( \frac{\Delta I_{ds}}{I_{ds}}\right) = 	\sigma^2 \left( \frac{\Delta \mu}{\mu}\right) + \sigma^2 \left( \frac{2\Delta V_T}{V_{gs} - V_{T}}\right)
+		\end{equation}
+		
+		\begin{equation}
+		3 \sigma \left(\Delta \mu \right) = \frac{ \sqrt{2} A_{\beta}  } { \sqrt{ \left(W-A_{\beta W}\right)\left(L-A_{\beta} L\right)}}
+		\end{equation}
+		
+		\begin{equation}
+		3 \sigma \left(\Delta V_T \right) = \frac{ \sqrt{2} A_{V_T}  } { \sqrt{ \left(W-A_{VTW}\right)\left(L-A_{VTL}\right)}}
+		\end{equation}
+		Wykreślmy błąd prądu przy pomocy Octave, znajdziemy minimalne L.
+		
+	}
+	
+	
+	
+	
+	
 	\begin{thebibliography}{9}
 		%%moje z knovela
 		\bibitem{integconv} 
