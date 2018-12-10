@@ -5,6 +5,9 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+
+\usepackage{rotating}
+
 \usepackage{graphicx}
 \usepackage{amsthm}
 \usepackage{polski}
@@ -76,16 +79,18 @@ minimum height=1cm, node distance=2cm]
 \begin{document}
 	\setcounter{page}{3}
 	\section*{Streszczenie}
-	{	Przetworniki cyfrowo-analogowe są niezbędną częścią wielu systemów mikroelektronicznych. Celem niniejszej pracy jest zaprojektowanie schematu i topografii masek 8-bitowego przetwornika cyfrowo analogowego w technologii CMOS AMS 180nm. Zaprojektowany przetwornik to segmentowe połączenie dwóch 4-bitowych równoległych konwerterów ze skalowaniem prądu, zdolny do przetwarzania $4MSPS$ z całkowym błędem nieliniowości INL mniejszym niż $0.5LSB$. Wykonano serię symulacji służących do pomiaru parametrów konwertera.}
+	{	Przetworniki cyfrowo-analogowe są niezbędną częścią wielu systemów mikroelektronicznych. Celem niniejszej pracy jest zaprojektowanie schematu i topografii masek 8-bitowego przetwornika cyfrowo-analogowego w technologii CMOS AMS 180nm. Zaprojektowany przetwornik to segmentowe połączenie dwóch 4-bitowych równoległych konwerterów ze skalowaniem prądu, zdolny do przetwarzania $4MSPS$ z całkowym błędem nieliniowości na poziomie $0.5$LSB. Wykonano serię symulacji służących do pomiaru parametrów konwertera.}
 	
-	{	\textbf{Słowa kluczowe: CMOS, przetworniki cyfrowo-analogowe, }}
+	{	\textbf{Słowa kluczowe: układy analogowe, układy scalone, CMOS, przetworniki cyfrowo-analogowe, C/A }}
+	
+	{	\textbf{Dziedzina nauki i techniki, zgodnie z wymogami OECD:} Nauki inżynieryjne i techniczne,  Elektrotechnika, elektronika, inżynieria informatyczna,  Elektrotechnika i elektronika}
 	
 	\newpage
 	
 	\section*{Abstract}
-	{	Digital to analog converters are crucial part of many microelectronics systems. Goal of this thesis was to design schematics and layouts of an 8-bit D/A converter using CMOS AMS 180nm technology. Designed converter is a segment connection of 2 4-bit current scaled converters, capable of $4MSPS$ operation with INL less than $0.5LSB$. A series of simulation was prepared to measure parmaeters.}
+	{	Digital to analog converters are a crucial part of many microelectronics systems. Goal of this thesis is to design schematics and layouts of an 8-bit D/A converter using CMOS AMS 180nm technology. Designed converter is a segment connection of 2 4-bit current scaled converters, capable of $4MSPS$ operation with integral nonlinearity around $0.5LSB$. A series of simulation was prepared to measure parmaeters of the converter.}
 	
-	{	\textbf{Keywords:}}
+	{	\textbf{Keywords: analog circuits, integrated circuits, CMOS, digital to analog converters, DAC, D/A}}
 	
 	{\setstretch{1.0}
 	\tableofcontents
@@ -95,12 +100,16 @@ minimum height=1cm, node distance=2cm]
 
 
 	\section*{Wykaz ważniejszych oznaczeń, skrótów i stałych}
+	\label{sec:skroty}
+	\addcontentsline{toc}{section}{\nameref{sec:skroty}}
+
 	\noindent
 	\begin{tabular}{>{$}r<{$}@{\ --\ }l}
 	AMS		& Austria MicroSystems \\
 	AMS		& Analog Mixed Signal \\
 	CMOS	& ang. Complementary Metal Oxide Semiconductor \\
-	FET		& Tranzystor polowy \\
+	FET		& Tranzystor polowy (ang. Field Effect Transistor) \\
+	MSPS	& Liczba milionów próbek na sekundę (ang. milion samples per second) \\
 	V_i	& Potencjał węzła $i$ \\
 	V_{ij}	& Różnica potencjałów między węzłami $i$ i $j$ \\
 	V_{ij,k} & Różnica potencjałów między terminalami $i$ i $j$ urządzenia o indeksie $k$ \\
@@ -121,18 +130,19 @@ minimum height=1cm, node distance=2cm]
 
 
 	\chapter{Wstęp}
-	{	W tym rozdziale dokonano zbioru najistotniejszych pojęć niezbędnych do zrozumienia sposobu działania konwerterów danych i zagadnień związanych z przetwarzaniem sygnałów. Dokonano zwięzłego opisu wybranych architektur przetworników oraz przytoczono definicje parametrów przetworników. Szczególną uwagę poświęcono przetwornikowi równoległemu skalującemu prąd, którego projekt został przedstawiony w dalszej części pracy.}
+	{	W tym rozdziale dokonano zbioru pojęć niezbędnych do zrozumienia sposobu działania konwerterów danych i zagadnień związanych z przetwarzaniem sygnałów. Dokonano zwięzłego przeglądu architektur przetworników cyfrowo-analogowych oraz przytoczono miary jakości przetworników. Szczególną uwagę poświęcono przetwornikowi równoległemu skalującemu prąd i układowi lustra prądowego.}
 	
 
-	\section{Systemy konwersji cyfrowo analogowej}
+	\section{Systemy konwersji cyfrowo-analogowej}
 	{	Konwertery sygnałów z postaci cyfrowej na analogową (i odwrotnie) są niezbędną częścią systemów elektronicznych, ponieważ umożliwiają komunikację pomiędzy zewnętrznym, analogowym światem i cyfrowymi rdzeniami układów krzemowych \cite{integconv}. Do przykładowych zastosowań konwerterów danych należą m.in. generowanie sygnału wizyjnego, fonicznego lub sygnałów sterowania np. dla układów radarowych, konwerterów mocy lub miernictwa. }
 	
 	\subsection{Twierdzenie Nyquista}
 	
 	\begin{twierdzenie}{Niech sygnał $S$ zajmuje pasmo częstotliwości $B =\left(0, f_{max}\right) $. Sygnał $S$ może być przetwarzany bezbłędnie, wtedy i tylko wtedy, gdy częstotliwość próbkowania $f_{sample}$ jest co najmniej dwukrotnie większa od górnego zakresu pasma częstotliwości $f_{max}$. }
-	$$
+	\begin{equation}
 		f_{sample} \ge 2 f_{max}
-	$$
+	\end{equation}
+
 	\end{twierdzenie}
 	
 	\begin{przyklad}{Dany jest konwerter danych, który przetwarza 4 miliony próbek na sekundę ($4MSPS$). Zgodnie z twierdzeniem Nyquista maksymalna częstotliwość przetwarzanego sygnału wynosi:}
@@ -141,48 +151,39 @@ minimum height=1cm, node distance=2cm]
 		\end{equation}
 	\end{przyklad}
 	
-	\subsection{Filtracja sygnału wejściowego}
-	{	W przypadku gdy twierdzenie Nyquista nie jest spełnione w widmie sygnału wyjściowego obserwuje się imaże (zwielokrotnienia) widm, które powodują zniekształcenie sygnału. Z tego powodu do poprawnego funkcjonowania systemu konwersji cyfrowo analogowej przed blokiem konwersji należy umieścić cyfrowy filtr dolnoprzepustowy, którego zadaniem jest ograniczenie pasma sygnału wejściowego w taki sposób, aby spełnione było twierdzenie Nyquista. Tego rodzaju filtr jest nazywany filtrem antyaliasowym. }
+	\subsection{Filtracja cyfrowego sygnału wejściowego}
+	{	W przypadku gdy twierdzenie Nyquista nie jest spełnione w widmie sygnału wyjściowego obserwuje się imaże (zwielokrotnienia) widm, które powodują zniekształcenie sygnału. Z tego powodu do poprawnego funkcjonowania systemu konwersji cyfrowo-analogowej przed blokiem konwersji należy umieścić cyfrowy filtr dolnoprzepustowy, którego zadaniem jest ograniczenie pasma sygnału wejściowego w taki sposób, aby spełnione było twierdzenie Nyquista. Tego rodzaju filtr jest nazywany filtrem antyaliasowym. }
 	
 	\begin{przyklad}{Dany jest konwerter danych, który przetwarza z szybkością $4MSPS$. Filtr antyaliasowy o transmitancji $H(f)$ powinien mieć charakterystykę amplitudową:}
 		\[   
 		|H(f)| = 
 		\begin{cases}
-			1 &\quad \text{dla} f \le 2MHz\\
-			0 &\quad \text{dla} f>2MHz\\
+			1 &\quad \text{dla } f \le 2MHz\\
+			0 &\quad \text{dla } f>2MHz\\
 		\end{cases}
 		\]		
 	\end{przyklad}
-	\begin{figure}[!htb]
-	\centering
-	\begin{tikzpicture}
-	\draw[->] (-4,0) -- (4,0) node[below] {$f$};
-	\draw[->] (0,-1) -- (0,2) node[right] {$|H(f)|$};
-	\draw[scale=1,domain=-2:2,smooth,variable=\x,blue] plot ({\x},{1});
-	\draw[scale=1,domain=-4:-2,smooth,variable=\x,blue] plot ({\x},{0});
-	\draw[scale=1,domain=2:4,smooth,variable=\x,blue] plot ({\x},{0});
-	\draw[scale=1,domain=0:1,smooth,variable=\y,blue] plot ({-2},{\y});
-	\draw[scale=1,domain=0:1,smooth,variable=\y,blue] plot ({2},{\y});
-	\end{tikzpicture}
-	\end{figure}
-		
-	\subsection{Filtracja sygnału wyjściowego}
-	{	W trakcie konwersji wyjście konwertera znajduje się w stanie przejściowym, co wprowadza
-	zniekształcenia sygnału wyjściowego. Wynika to zazwyczaj z faktu, że przejściu pomiędzy różnymi słowami cyfrowymi towarzyszy przełączenie jednego lub więcej kluczy. Ochronę przed zniekształceniami sygnału i impulsami szpilkowymi osiąga się dzięki stosowaniu układu próbkująco pamiętającego i filtru wyjściowego. Ten ostatni popularnie nazywany jest filtrem rekonstrukcyjnym. }
-	\begin{przyklad}{Dany jest konwerter danych, który przetwarza $4MSPS$. Filtr rekonstrukcyjny powinien być filtrem dolnoprzepustowym o częstotliwości granicznej równej $2MHz$.}
+
+	\subsection{Filtracja analogowego sygnału wyjściowego}
+	{	Zmiana stanu klucza realizowanego w technologii CMOS wywołuje skokową zmianę napięcia, a zmianie słowa cyfrowego na wejściu przetwornika powoduje przełączenie jednego lub więcej kluczy, więc w trakcie konwersji sygnał wyjściowy konwertera cyfrowo-analogowego znajduje się w stanie przejściowym, co wprowadza zniekształcenia sygnału wyjściowego. Ochronę przed zniekształceniami sygnału osiąga się dzięki stosowaniu układu próbkująco-pamiętającego.}
+	
+	{	Sygnał na wyjściu idealnego przetwornika cyfrowo-analogowego jest schodkowym sygnałem dyskretnym o szerokim paśmie, który należy poddać filtracji wyjściowej. Filtr realizujący to zadanie popularnie nazywany jest filtrem rekonstrukcyjnym. }
+	
+
+	\begin{przyklad}{Dany jest konwerter danych, który przetwarza z szybkością $4MSPS$. Filtr rekonstrukcyjny powinien być filtrem dolnoprzepustowym o częstotliwości granicznej równej $2MHz$.}
 	\end{przyklad}
 
-	\subsection{Systemy przetwarzania cyfrowo analogowego}
-	{	Ogólny schemat blokowy systemu przetwarzania sygnału z postaci cyfrowej na analogową został przedstawiony na rysunku \ref{blokca}.
+	\subsection{Systemy przetwarzania sygnału cyfrowo-analogowego}
+	{	Ogólny schemat blokowy systemu przetwarzania sygnału z postaci cyfrowej na analogową został przedstawiony na rysunku \ref{blokca}. Wejściowy sygnał cyfrowy jest podawany na cyfrowy filtr dolnoprzepustowy (FDP), aby ograniczyć pasmo sygnału wejściowego. Następnie sygnał jest konwertowany z postaci cyfrowej na analogową i próbkowany przez układ próbkująco-pamiętający. Ostatnim etapem konwersji jest filtracji w analogowym filtrze dolnoprzepustowym.
 		}
 	\begin{figure}[!htb]
 	\centering
 		\begin{tikzpicture}[auto]
 		\node [signal] (in) {Sygnał \\ cyfrowy};
-		\node [block, below of = in, node distance = 2cm] (fir) {FDP antyaliasing};
+		\node [block, below of = in, node distance = 2cm] (fir) {FDP};
 		\node [block, below of = fir, node distance = 2cm] (converter) {Blok \\ konwersji C/A};
 		\node [block, below of = converter, node distance = 2 cm](sh){Układ próbkująco-pamiętający S\&H};
-		\node [block, below of = sh, node distance = 2 cm](afilter){FDP rekonstrukcja};
+		\node [block, below of = sh, node distance = 2 cm](afilter){FDP};
 		\node [signal, below of = afilter, node distance = 2cm] (out) {Sygnał analogowy};
 		
 		\draw [->] (in) -- node {} (fir);
@@ -191,32 +192,30 @@ minimum height=1cm, node distance=2cm]
 		\draw [->] (sh) -- node {} (afilter);
 		\draw [->] (afilter) -- node {} (out);
 		\end{tikzpicture}
-	\label{blokca}
 	\caption{Schemat blokowy systemu konwersji sygnału.}
+	\label{blokca}
 	\end{figure}
 	
 	
 	\section{Przegląd architektur konwerterów C/A \cite{cmosanal} \cite{plassche}}
-	{	Dokonuje się kilku podziałów konwerterów. Ze względu na liczbę przetwarzanych bitów wyróżnia się: \textbf{szeregowe}, czyli takie, które dokonują konwersji słowa cyfrowego bit po bicie oraz \textbf{równoległe}, czyli takie, które dokonują konwersji całego słowa jednocześnie. Jeżeli sygnał wyjściowy przetwornika jest stały w czasie dla ustalonego i podtrzymywanego słowa cyfrowego, to nazywamy taki przetwornik \textbf{statycznym}, w przeciwieństwie do przetworników \textbf{dynamicznych}, których sygnał wyjściowy zanika i wymaga odświeżania. }
+	{	Dokonuje się kilku podziałów konwerterów. Ze względu na liczbę przetwarzanych bitów wyróżnia się: \textbf{szeregowe}, czyli takie, które dokonują konwersji słowa cyfrowego bit po bicie oraz \textbf{równoległe}, czyli takie, które dokonują konwersji całego słowa jednocześnie. Jeżeli sygnał wyjściowy przetwornika jest stały w czasie dla ustalonego i podtrzymywanego słowa cyfrowego, to nazywa się taki przetwornik \textbf{statycznym}, w przeciwieństwie do przetworników \textbf{dynamicznych}, których sygnał wyjściowy zanika i wymaga odświeżania. }
 	
 	{	\textbf{Przetwornik z modulacją szerokości impulsów} dokonuje porównania słowa cyfrowego z liniowo rosnącym cyfrowym słowem odniesienia. Wygenerowany w ten sposób impuls o szerokości zależnej od wartości przetwarzanego słowa poddawany jest filtracji dolnoprzepustowej. Do wad tego rozwiązania należą mała szybkość przetwarzania i konieczność stosowania filtrów o wysokim tłumieniu w paśmie zaporowym. }
 	
-	{	\textbf{Przetwornik integracyjny z całkowaniem liniowym} również wykorzystuje mechanizm porównywania liczb cyfrowych do wygenerowania sygnału o modulowanej szerokości, który jest poddawany scałkowaniu, a następnie próbkowaniu przez układ próbkująco pamiętający. Celem zwiększenia szybkości działania układu dokonuje się podzielenia słowa bitowego na część starszą i młodszą, a przetwarzanie obu części odbywa się równolegle. }
+	{	\textbf{Przetwornik integracyjny z całkowaniem liniowym} również wykorzystuje mechanizm porównywania liczb cyfrowych do wygenerowania sygnału o modulowanej szerokości, który jest poddawany scałkowaniu, a następnie próbkowaniu przez układ próbkująco-pamiętający. Celem zwiększenia szybkości działania układu dokonuje się podzielenia słowa bitowego na część starszą i młodszą, a przetwarzanie obu części odbywa się równolegle. }
 	
 	{	\textbf{Przetworniki sieciowe ze skalowaniem} dokonują zamiany słowa cyfrowego na napięcia, prądy lub ładunki proporcjonalne do wartości tego słowa. Ważone dwójkowo sygnały z poszczególnych gałęzi sieci są sumowane, a sygnał wyjściowy podlega konwersji i/lub kondycjonowaniu do zadanej formy. Udaje się uzyskać rozdzielczość do 10-bitów.}
-	
-	{	\textbf{Przetwornik z kształtowaniem szumu} wykorzystuje filtry nad-próbkujące, układy kształtowania szumu, 1-bitowy przetwornik C/A i analogowy filtr wyjściowy. Uzyskuje się wysoką precyzję 16-18 bitów. }
 	
 	{	\textbf{Przetwornik szeregowy z redystrybucją ładunku} wykorzystuje układ dwóch połączonych równolegle identycznych kondensatorów i kilka kluczy. Kondensator wejściowy jest ładowany lub rozładowywany w zależności od wartości kolejnych bitów, a następnie dołączany do kondensatora wyjściowego, co pozwala na dodanie lub odjęcie ładunku, a więc zwiększenie lub zmniejszenie wartości napięcia wyjściowego.
 	}
 	
-	{	\textbf{Przetwornik algorytmiczny potokowy} składa się z sumatorów i bloków opóźnienia, które pozwalają na dodawanie przeskalowanych napięć referencyjnych w kolejnych blokach. \textcolor{red}{przepisać} }
+	{	\textbf{Przetwornik algorytmiczny potokowy} dokonuje konwersji w połączonych kaskadowo blokach - potoku. Każdy stopień potoku opóżnia sygnał o jeden cykl zegarowy i konwertuje ustaloną część słowa bitowego.}
 
-	{	\textbf{Przetwornik algorytmiczny iteracyjny} w węźle układu próbkująco pamiętającego dodaje kolejne bity. \textcolor{red}{przepisać} }
+	{	\textbf{Przetwornik algorytmiczny iteracyjny} dokonuje konwersji w sposób szeregowy w liczbie iteracji równej liczbie bitów konwertowanej liczby. W każdej iteracji wyliczana jest wartość sygnału analogowego odpowiadająca kolejnemu bitowi słowa cyfrowego i dodawana do pamięci analogowej. Po konwersji 
 
 	{ 	\textbf{Przetworniki segmentowe} to przetworniki składające się z połączenia dwóch lub więcej przetworników. Zazwyczaj łączone są przetworniki o małej liczbie bitów w większe, aby zwiększyć rozdzielczość. }
 
-	{	Pierwszym krokiem w projekcie przetwornika jest wybór architektury na podstawie analizy obecnego stanu wiedzy technicznej oraz wymagań dotyczących rozdzielczości, szybkości, powierzchni i pobieranej mocy. Po zapoznaniu się z literaturą wybór padł na konwerter skalujący prąd. Najistotniejsze motywacje tego wyboru to prostota schematu, wysoka szybkość działania \cite{cmosanal} oraz fakt, że poprzednie prace uzyskały do 10 bitów rozdzielczości \cite{plassche}.	Autorzy \cite{cmosanal} jako główne wady podają duży rozmiar oraz duży rozstęp wielkości elementów.}
+	{	Pierwszym krokiem w projekcie przetwornika jest wybór architektury na podstawie analizy obecnego stanu wiedzy technicznej oraz wymagań dotyczących rozdzielczości, szybkości, powierzchni i pobieranej mocy. Po wykonaniu przeglądu literatury wybór padł na konwerter skalujący prąd. Najistotniejsze motywacje tego wyboru to prostota schematu, wysoka szybkość działania \cite{cmosanal} oraz fakt, że poprzednie prace uzyskały do 10 bitów rozdzielczości \cite{plassche}.	Autorzy \cite{cmosanal} jako główne wady podają duży rozmiar oraz duży rozstęp wielkości elementów.}
 	
 	\section{Parametry przetworników C/A}
 	{	Sygnałem wejściowym dla N bitowego przetwornika cyfrowo analogowego jest słowo cyfrowe $\mathcal{B}=\{b_{N-1},b_{N-2},...,b_0\}$. Bit $b_{N-1}$ nosi miano najstarszego bitu (MSB - Most Siginificant Bit), a bit $b_0$ najmłodszego (LSB - Least Siginificant Bit). Sygnał wyjściowy to analogowe napięcie lub prąd $\mathcal{S}$ przeskalowany przez sygnał referencyjny $V_{ref}$. Zależność pomiędzy sygnałem wyjściowym i wejściowym to wtedy:
@@ -273,6 +272,7 @@ minimum height=1cm, node distance=2cm]
 	\draw [->] (conv) -- node {$V_{out}=g(V_{ref},I_{out})$} (out);
 	\end{tikzpicture}
 	\caption{Schemat blokowy konwertera skalującego prąd.}
+	\label{currentscale}
 \end{figure}
 
 	\section{Segmentowy równoległy przetwornik skalujący prąd}
@@ -285,7 +285,7 @@ minimum height=1cm, node distance=2cm]
 	I_{out,MN} = I_{out,M} + I_{out,N}
 	= I_{ref,M} \sum_{i=0}^{M-1} b_i 2^{i} + I_{ref,N} \sum_{i=0}^{N-1} b_i 2^{i}
 	\end{equation}
-	W szczególności, gdy zachodzi $I_{ref,N} = 2^M I_{ref} $:
+	W szczególności, gdy zachodzi $I_{ref,N} = 2^M I_{ref,M} $:
 	\begin{equation}
 	I_{out,MN} = I_{ref,M}\left(\sum_{i=0}^{M-1} b_i 2^{i} + 2^M \sum_{i=0}^{N-1} b_i 2^{i}\right) 
 	\end{equation}
@@ -303,24 +303,23 @@ minimum height=1cm, node distance=2cm]
 	\section{Technologia CMOS}
 	{	Poprawnie zaprojektowane układy scalone charakteryzują się niewrażliwością na rozrzut technologiczny parametrów elementów elektronicznych, zmian temperatury oraz odchyłki napięcia zasilania od wartości nominalnej. Pełna analiza zaprojektowanego konwertera pod kątem wrażliwości na te czynniki wybiega poza zakres tej pracy - przedstawiono wybrane zagadnienia. }
 
-	{	W niniejszej pracy skomentowano dwa rodzaje błędów występujących w układach elektronicznych. Błędem systematycznym nazywa się w tej pracy błąd wynikający ze sposobu zaprojektowania schematu. Błąd systematyczny można mierzyć przy pomocy symulacji stałoprądowej, małosygnałowej lub czasowej. Błędem technologicznym nazwano błąd wynikający z niedopasowania i niedokładności procesu technologicznego i jest on mierzony tylko przy pomocy analiz statystycznych, np. Monte Carlo.}
+	{	W niniejszej pracy skomentowano dwa rodzaje błędów, z którymi zmagają się projektanci układów elektronicznych. Błędem systematycznym nazywa się w tej pracy błąd wynikający ze sposobu zaprojektowania schematu. Błąd systematyczny można mierzyć przy pomocy symulacji stałoprądowej, małosygnałowej lub czasowej. Błędem technologicznym nazwano błąd wynikający z niedopasowania i niedokładności procesu technologicznego i jest on mierzony tylko przy pomocy analiz statystycznych, np. analizy Monte Carlo. }
 
-	\subsection{Tranzystory wielopalczaste a połączenie równoległe}
-	{	Podczas projektowania należy zachować zgodność symulowanego schematu z narysowaną topografią masek. Zgodność osiąga się poprzez uwzględnienie elementów pasożytniczych w symulacji oraz parametryzację używanych tranzystorów $FET$. W technologii CMOS istnieją liczne sposoby realizacji zaprojektowanego tranzystora. Model kwadratowy pozwala pokazać, że równoległe połączenie $n$ tranzystorów o wymiarach $W$ i $L$ jest równoważny z tranzystorem o wymiarach $nW$ i $L$. Zarówno dla zaawansowanych modeli tranzystorów jak i dla produkowanych obecnie tranzystorów występuje odchyłka od tej zasady. Odchyłka jest spowodowane szeregiem czynników, m. in. różnymi wartościami elementów pasożytniczych oraz odmiennymi błędami technologicznymi. }
+	\subsection{Tranzystory wielopalczaste.}
+	{	Model kwadratowy pozwala pokazać, że równoległe połączenie $n$ tranzystorów o wymiarach $W$ i $L$ jest równoważny z tranzystorem o wymiarach $nW$ i $L$. Symulacje wykonywane z zaawansowanymi modelami tranzystorów pokazują, że te obwody nie są sobie równoważne. Ponadto, w technologii CMOS tranzystor może zostać zrealizowany jako tranzystor wielopalczasty, cechujący się odmiennymi parametrami. Mnogość realizacji tranzystora pozwala projektantowi dostosowywać konfigurację w zależności od aplikacji. }
+	\begin{przyklad}{Jakie są całkowite wymiary tranzystora o $nf=100$ palcach i wielokrotności $M=5$, jeżeli szerokość pojedynczego palca $W_{finger}$ wynosi $1\mu$?}
+
+	{	Wielokrotność $5$ i liczba palców $nf=100$ oznacza, że jest to tranzystor składający się z 5 równolegle połączonych tranzystorów 100-palczastych. Całkowita szerokość tranzystora $W_{total}$ jest obliczana:
+	\begin{equation}
+		W_{total} = M \left(nf \cdot W_{finger}  \right) = 5 \cdot \left(100 \cdot 1\mu \right) = 500 \mu 
+	\end{equation}}
+	\end{przyklad}
 	
-	{ 	Ze względu na fakt, że koniecznym warunkiem działania przetwornika skalującego prąd jest bezbłędne działanie lustra prądowego, rozważono wpływ sposobu realizacji tranzystorów na błąd powtarzania prądu. Proste lustro prądowe wykorzystane do pomnożenia prądu przez naturalny czynnik $k$ wymaga stworzenia tranzystora referencyjnego o wymiarach $W$ i $L$ oraz tranzystora, którego szerokość jest $k$ razy większa. Do podstawowych realizacji tranzystora należą:
-	\begin{itemize}
-		\item jeden tranzystor o wymiarach $kW$, $L$,
-		\item $k$ równolegle połączonych tranzystorów o wymiarach $W$ i $L$,
-		\item $k$-palczasty tranzystor o szerokości każdego palca $W$,
-		\item $i$ równolegle połączonych $j$-palczastych tranzystorów, gdzie $i \cdot j = k$.
-	\end{itemize}
-	Warto zauważyć, że tranzystor referencyjny również można zrealizować jako tranzystor wielopalczasty. }
 
 	\section{Lustro prądowe}
-	{	Znajomość układu lustra prądowego jest niezbędna do zrozumienia sposobu działania zaprojektowanego przetwornika skalującego prąd. Poniżej przytoczono podstawowe wiadomości, bardziej szczegółowy opis można znaleźć w \cite{cmosanal}.}
+	{	Znajomość układu lustra prądowego jest niezbędna do zrozumienia sposobu działania zaprojektowanego przetwornika skalującego prąd. Poniżej przytoczono krótki opis zasady działania, bardziej szczegółowy opis można znaleźć w \cite{cmosanal}.}
 	\subsection{ Proste lustro prądowe.}
-	{ Schemat prostego lustra prądowego przedstawiono na ???. Na potrzeby tej pracy tranzystor $M_0$ został nazwany tranzystorem referencyjnym, ponieważ płynie przez niego prąd referencyjny. Analogicznie tranzystor $M_1$ został nazwany tranzystorem wyjściowym. Oba tranzystory w lustrze prądowym pracują w obszarze nasycenia, więc dla obu tranzystorów spełnione są warunki:
+	{ Schemat prostego lustra prądowego przedstawiono na rysunku \ref{mirror_simple}. Na potrzeby tej pracy tranzystor $M_0$ został nazwany tranzystorem referencyjnym, ponieważ płynie przez niego prąd referencyjny. Analogicznie tranzystor $M_1$ został nazwany tranzystorem wyjściowym. Oba tranzystory w lustrze prądowym pracują w obszarze nasycenia, więc dla obu tranzystorów spełnione są warunki:
 	\begin{equation} \label{eq_cutoff}
 	V_{GS} > V_{TH,n}
 	\end{equation}
@@ -340,9 +339,86 @@ minimum height=1cm, node distance=2cm]
 	\begin{equation}
 	\frac{I_o}{I_{ref}} =\frac{\beta_1}{\beta_2} \frac{(V_{GS,1}-V_{TH,n})^2}{(V_{GS,0}-V_{TH,n})^2} \frac{\left(1+\lambda V_{DS,1} \right)}{\left(1+\lambda V_{DS,0} \right)}
 	\end{equation}
-	Analizując powyższe wyrażenie, można rozróżnić czynniki wpływające na systematyczny i technologiczny błąd powtarzania prądu. Do błędu technologicznego przyczyniają się rozrzuty długości tranzystora, szerokości tranzystora, ???gain factor??? i napięcia progowego. Do błędu systematycznego przyczynia się różnica napięć $V_{DS,1} - V_{DS,0}$. Uzyskanie zerowego błędu systematycznego jest możliwe, jeżeli zagwarantuje się równość napięć $V_{DS,1} = V_{DS,0}$. Minimalizację błędów technologicznych uzyskuje się poprzez zwiększanie rozmiarów tranzystorów oraz techniki tworzenia topografii, które zostały opisane w następnych rozdziałach.
+	
+	\begin{figure}[!htb]
+		\centering
+		\begin{circuitikz}[scale = 0.6]
+				%	\draw [gray, color=gray] (0,0) grid (20,10);
+			\draw [color=black, thick]
+			% Devices
+			(4, 1) node[nmos, rotate =180, label={ [centered,xshift=-10, yshift = 10] {$M_0$} } ](m0){}
+			(8, 1) node[nmos, label={ [centered,xshift=10, yshift = 10] {$M_1$} } ](m1){};
+			\draw[color=black, thick]
+			% Ports
+			(m0.G) to [short] (m1.G)
+			(m0.D) to [short] (m1.S)
+			(m0.S) to [short] (4,3)
+			(6,3) to [short] (4,3)
+			(6,3) to [short] (6,1)
+			(m1.D) to [short,-o] (8,4)
+			(9,4) node[]{\large{\textbf{$I_{out}$}}}
+			(4,4) to [short](4,2)
+			(4,9) to [I=${I_{ref}}$] (4,4)
+			(4,8) node[ground, rotate = 180, label={ [centered,xshift=20, yshift = 5] {$GND$}}](4,10){}
+			;
+		\end{circuitikz}
+		\caption{Proste lustro prądowe.}
+		\label{mirror_simple}
+	\end{figure}
+	
+	{	Analizując powyższe wyrażenie, można rozróżnić czynniki wpływające na systematyczny i technologiczny błąd powtarzania prądu. Do błędu technologicznego przyczyniają się rozrzuty długości tranzystora, szerokości tranzystora, parametru transkonduktancyjnego i napięcia progowego. Minimalizację błędów technologicznych uzyskuje się poprzez zwiększanie rozmiarów tranzystorów oraz techniki tworzenia topografii, które zostały opisane w następnych rozdziałach. Do błędu systematycznego przyczynia się różnica napięć $V_{DS,1}$,$V_{DS,0}$. }
 
-	\section{Kaskodowe lustro prądowe.}
+	{	Uzyskanie zerowego błędu systematycznego jest możliwe, jeżeli zagwarantuje się równość napięć $V_{DS,1} = V_{DS,0}$. Dla idealnych tranzystorów spolaryzowanych w ten sposób zachodzi:
+		
+		\begin{equation}
+		\frac{I_{out}}{I_{ref}} = \frac{S_{out}}{S_{ref}}
+		\end{equation}
+	}
+
+	\subsection{Kaskodowe lustro prądowe.}
+	{	Proste lustro prądowe jest układem szeroko wykorzystywanym, lecz gdy wymagana jest wyższa rezystancja wyjściowa, stosuje się kaskodowe lustro prądowe. Schemat kaskodowego lustra prądowego został przedstawiony na rysunku \ref{cascode}. Zasada działania jest analogiczna jak prostego lustra prądowego. Zakładając, że $S_0 = S_2 $ i $S_1 = S_3$ oraz wszystkie tranzystory pracują w obszarze nasycenia, prąd płynący przez tranzystor $M_0$ jest równy prądowi płynącemu przez tranzystor $M_2$. Oznacza to równość napięć $V_{DS,0} = V_{GS,0} =V_{DS,2} = V_{GS,2}$. Ze względu na sposób połączenia zachodzi również $V_{GS,3} = V_{GS,2}$, z czego wnioskuje się, że:
+		\begin{equation}
+			\frac{I_3}{I_2} = \frac{S_3}{S_2}
+		\end{equation}
+	Prąd wyjściowy lustra jest równy prądowi tranzystora $M3$, więc zachodzi:
+		\begin{equation}
+		\frac{I_{out}}{I_ref} = \frac{S_3}{S_2}
+		\end{equation}
+	}
+	\begin{figure}[!htb]
+		\centering
+		\begin{circuitikz}[scale = 0.6]
+				%\draw [gray, color=gray] (0,0) grid (20,10);
+			\draw [color=black, thick]
+			% Devices
+			(4, 1) node[nmos, rotate =180, label={ [centered,xshift=-10, yshift = 10] {$M_0$} } ](m0){}
+			(8, 1) node[nmos, label={ [centered,xshift=10, yshift = 10] {$M_1$} } ](m1){};
+			\draw[color=black, thick]
+			(4, -2) node[nmos, rotate =180, label={ [centered,xshift=-10, yshift = 10] {$M_2$} } ](m2){}
+			(8, -2) node[nmos, label={ [centered,xshift=10, yshift = 10] {$M_3$} } ](m3){};
+			\draw[color=black, thick]
+			% Ports
+			(m0.G) to [short] (m1.G)
+			(m2.G) to [short] (m3.G)
+			(m2.D) to [short] (m3.S)
+			(m2.S) to [short] (m0.D)
+			(m1.S) to [short] (m3.D)
+			(m0.S) to [short] (4,3)
+			(6,3) to [short] (4,3)
+			(6,3) to [short] (6,1)
+			(6,0) to [short] (6,-2)
+			(6,0) to [short] (4,0)
+			(m1.D) to [short,-o] (8,4)
+			(9,4) node[]{\large{\textbf{$I_{out}$}}}
+			(4,4) to [short](4,2)
+			(4,9) to [I=${I_{ref}}$] (4,4)
+			(4,8) node[ground, rotate = 180, label={ [centered,xshift=20, yshift = 5] {$GND$}}](4,10){}
+			;
+		\end{circuitikz}
+		\caption{Kaskodowe lustro prądowe.}
+		\label{cascode}
+	\end{figure}
+	
 	
 	\section{Zasada działania 8-bitowego segmentowego przetwornika skalującego prąd}
 { Segmentowe połączenie dwóch przetworników pozwala uzyskać 8-bitowy przetwornik, pod warunkiem, że prąd wpływający do drugiego przetwornika jest 16-krotnie większy. Poprzez połączenie segmentowe rozumie się połączenie, w którym prądy ze wszystkich 8 gałęzi są sumowane na jednym wzmacniaczu operacyjnym. Wtedy:
@@ -409,33 +485,36 @@ S_i = 2^i \frac{W_0}{L_0}
 		;
 		
 	\end{circuitikz}
-	\label{4bitca}
 	\caption{4-bitowy przetwornik C/A.}
+	\label{4bitca}
 \end{figure}
 
 \section{Powierzchnia konwertera}
-{	Na tym etapie warto zauważyć, że powierzchnia tranzystorów w lustrze prądowym staje się znacząca. Zakładając optymistycznie, że rozmiar tranzystora to wyłącznie powierzchnia kanału $A=W_0\cdot L_0$, powierzchnia luster prądowych 4 bitowego przetwornika wynosi:
+{	Na tym etapie projektowania można oszacować powierzchnię tranzystorów w lustrze prądowym. Zakładając optymistycznie, że rozmiar tranzystora to wyłącznie powierzchnia kanału $A_0=W_0\cdot L_0$, obliczono powierzchnię luster prądowych przetworników: 4-bitowego, 8-bitowego, 8-bitowego 2-segmentowego, 8-bitowego 2-segmentowego z kaskodowym lustrem prądowym.
 	\begin{equation}
 	A_{4bit} =  \left( 1 + \sum_{i=0}^{3}2^i \right)   W_0 \cdot L_0= 16 W_0 \cdot L_0
 	\end{equation}
-	Dla przetwornika 8 bitowego:
 	\begin{equation}
 	A_{8bit} = \left( 1 + \sum_{i=0}^{7}2^i \right)   W_0 \cdot L_0 = 256 W_0 \cdot L_0
 	\end{equation}
-	Zastosowanie przetwornika segmentowego pozwala znacznie obniżyć powierzchnię do:
 	\begin{equation}
 	A_{8bit,seg} = 2\left( 1 + \sum_{i=0}^{3}2^i \right)   W_0 \cdot L_0 = 32 W_0 \cdot L_0
 	\end{equation}
-	Powierzchnia konwertera z kaskodowym lustrem prądowym.
 	\begin{equation}
-		A_{8bit,seg} = 2\left( 2 + 2*\sum_{i=0}^{3}2^i \right)   W_0 \cdot L_0 = 64 W_0 \cdot L_0
+		A_{8bit,seg,cascode} = 2\left( 2 + 2*\sum_{i=0}^{3}2^i \right)   W_0 \cdot L_0 = 64 W_0 \cdot L_0
 	\end{equation}
-	Projektant powinien na wczesnym etapie projektu sprawdzić, czy ta powierzchnia jest akceptowalna ze względu na cenę lub dostępną wolną powierzchnią w większym systemie. Jeżeli nie, należy rozważyć inne architektury. }
+	}
+
+	\begin{wniosek}{Zakładając, że do realizacji zostaną wykorzystane tranzystory o tych samych rozmiarach, połączenie segmentowe pozwala zmniejszyć powierzchnię układu.}
+	\end{wniosek}
+
+	\begin{wniosek}{Zakładając, że do realizacji zostaną wykorzystane tranzystory o tych samych rozmiarach, lustro kaskodowe zajmuje 2-krotnie większą powierzchnię niż proste lustro prądowe.}
+	\end{wniosek}
 
 	\chapter{Projekt elektryczny}
-	{	Przeprowadzono badania 8-bitowego przetwornika skalującego prąd, który został skonstruowany z dwóch połączonych przetworników 4-bitowych. W tym rozdziale przedstawiono wyniki wybranych symulacji oraz dyskusję wpływu parametrów urządzeń na błąd sygnału wyjściowego.}
+	{	Przeprowadzono badania 8-bitowego przetwornika skalującego prąd, który został skonstruowany z dwóch połączonych przetworników 4-bitowych. Pełny schemat przetwornika znajduje się w dodatku. W tym rozdziale przedstawiono wyniki wybranych symulacji oraz dyskusję wpływu parametrów urządzeń na błąd sygnału wyjściowego.}
 	
-	\section{Wymagania.}
+	\section{Wymagania}
 	{	Projekt układu rozpoczyna się od sformułowania wymagań (specyfikacji) urządzenia lub systemu. Sformułowano następujące wymagania na przetwornik:
 		\begin{itemize}
 			\item zasilany ze źródła napięcia stałego o wartości 1.8V,
@@ -445,17 +524,27 @@ S_i = 2^i \frac{W_0}{L_0}
 		\end{itemize} 
 	Projekt został zrealizowany w środowisku Cadence 2012/13.}
 	
-	\section{Błąd systematyczny przetwornika 8-bitowego}
-	{ Celem symulacji przeprowadzonych w tej części pracy jest wyznaczenie rozmiarów tranzystorów przetwornika oraz sformułowanie wymagań dotyczących wzmacniaczy operacyjnych. Podstawowym mierzonym błędem jest odchyłka napięcia wyjściowego od napięcia wyjściowego idealnego przetwornika. Pomiary są wykonywane dla słowa cyfrowego $1111\_1111$, ponieważ maksymalny błąd przetwarzania występuje, gdy sumowane są prądy ze wszystkich gałęzi, o ile zaniedbuje się prądy upływności. Prądy upływności można zaniedbać, ponieważ przy pomocy symulacji wyznaczono, że są rzędu $1e-27A$. Od dobrze zaprojektowanego przetwornika oczekuje się, że błąd w stanie ustalonym będzie mniejszy niż $0.5LSB$. W pierwszej części symulacji badany jest przetwornik z idealnymi wzmacniaczami, modelowanymi za pomocą źródeł napięciowych sterowanych napięciem.}
+	\section{Błędy przetwornika 8-bitowego}
+	{ Celem symulacji przeprowadzonych w tej części pracy jest wyznaczenie rozmiarów tranzystorów przetwornika oraz sformułowanie wymagań dotyczących wzmacniaczy operacyjnych. Podstawowym mierzonym błędem jest odchyłka napięcia wyjściowego od napięcia wyjściowego idealnego przetwornika. Pomiary są wykonywane dla słowa cyfrowego $1111\_1111$, ponieważ maksymalny systematyczny błąd przetwarzania występuje, gdy sumowane są prądy ze wszystkich gałęzi, o ile zaniedbuje się prądy upływności. Prądy upływności można zaniedbać, ponieważ przy pomocy symulacji wyznaczono, że są rzędu $1e-27A$. Od dobrze zaprojektowanego przetwornika oczekuje się, że błąd w stanie ustalonym będzie mniejszy niż $0.5LSB$. W pierwszej części symulacji badany jest przetwornik z idealnymi wzmacniaczami, modelowanymi za pomocą źródeł napięciowych sterowanych napięciem.}
 	
 	\subsection{Wpływ prądu i napięcia referencyjnego na błąd systematyczny}
-	{	Wykonano przemiatanie prądu referencyjnego w zakresie $(50n; 25\mu)A$ dla trzech wartości napięcia referencyjnego ${0.7;0.9;1.1}V$ przy minimalnych wymiarach tranzystorów. Przebieg napięcia wyjściowego pokazano na rysunku \ref{figIU}.
+	{	Wykonano przemiatanie prądu referencyjnego w zakresie $(50n; 25\mu)A$ dla trzech wartości napięcia referencyjnego ${0.7;0.9;1.1}V$ dla następujących parametrów elementów: 
 	\begin{itemize}
-		\item $A_d = 10M$, $V_{off} = 0V$,
-		\item $L_0 = 0.18\mu$, $W_0 = 0.5\mu$,
-		\item $L_K = 0.18\mu$, $W_K = 0.5\mu$,
-		\item $R = 100 \Omega$.
+	\item $A_d = 10M$, $V_{off} = 0V$,
+	\item $L_0 = 0.18\mu$, $W_0 = 0.5\mu$,
+	\item $L_K = 0.18\mu$, $W_K = 0.5\mu$,
+	\item $R = 100 \Omega$.
 	\end{itemize}
+	Pomierzone przebiegi napięcia wyjściowego pokazano na rysunku \ref{i_u_depend}. Napięcie wyjściowe idealnego przetwornika jest równe:
+		\begin{equation}
+			V_{out} = (2^{N}-1)R I_{ref} + V_{ref}
+		\end{equation}
+	Błąd systematyczny został obliczony i wykreślony na rysunku \ref{i_u_delta2} jako różnica pomiędzy napięciem wyjściowym przetwornika idealnego i pomierzonego, a następnie unormowany do wartości LSB.
+		\begin{equation}
+			\delta = \frac{V_{out,ideal} - V_{out,meas}}{R I_{ref}}
+		\end{equation}
+	}		
+
 	
 	\begin{figure}[!ht]
 		\centering
@@ -477,27 +566,56 @@ S_i = 2^i \frac{W_0}{L_0}
 		\end{axis}
 		\end{tikzpicture}
 		\caption{Napięcie wyjściowe przetwornika w zależności od prądu referencyjnego dla wartości napięcia referencyjnego, od góry: $(1.1,0.9,0.7)V$}
+		\label{i_u_depend}
+	\end{figure}
+		
+	\begin{figure}[!ht]
+		\centering
+		\begin{tikzpicture}
+		\begin{axis}[
+		width=0.6\linewidth, % Scale the plot to \linewidth
+		grid=major, % Display a grid
+		grid style={dashed,gray!30}, % Set the style
+		xlabel=$I_{ref}$, % Set the labels
+		ylabel=$\delta$,
+		x unit=\si{\ampere}, % Set the respective units
+		y unit=\si{LSB},
+		legend style={at={(0.5,-0.2)},anchor=north}, % Put the legend below the plot
+		x tick label style={rotate=90,anchor=east} % Display labels sideways
+		]
+		\addplot[loosely dashed, line width = 1.5pt, blue] table [x={X1}, y={Y1}, col sep=comma] {\detokenize{i_u_delta2.csv}};
+		\addplot[loosely dashed, line width = 1.5pt, red] table [x={X1}, y={Y2}, col sep=comma] {\detokenize{i_u_delta2.csv}};
+		\addplot[loosely dashed, line width = 1.5pt, green] table [x={X1}, y={Y3}, col sep=comma] {\detokenize{i_u_delta2.csv}};
+		\end{axis}
+		\end{tikzpicture}
+		\caption{Unormowany błąd przetwornika w zależności od prądu referencyjnego dla wartości napięcia referencyjnego, od góry: $(1.1,0.9,0.7)V$}
+		\label{i_u_delta2}
 	\end{figure}
 	
-	\begin{wniosek}{W symulowanym zakresie wpływ prądu i napięcia referencyjnego na błąd systematyczny przetwornika jest zaniedbywalny. }
-		
+	\begin{wniosek}{W zbadanym zakresie błąd systematyczny rośnie ze wzrostem napięcia referencyjnego.}
+	\end{wniosek}
+
+	\begin{wniosek}{W zbadanym zakresie błąd systematyczny jest najmniejszy dla małych wartości prądu referencyjnego.}
 	\end{wniosek}
 
 	{	Do dalszych symulacji wybrano $V_{ref} = 900mV$ i $I_{ref} = 100nA$. }
 
 
 	\subsection{Minimalizacja błędu systematycznego}
-	{	Konfiguracja: przełączamy wszystkie bity, robimy transient, patrzymy na wyjście. Odpowiadamy na 2 pytania: czy w czasie 250ns osiągamy stan ustalony, ile wynosi błąd systematyczny? Dla R = 10K wyjście powinno skakać od 900mV do 1.155V}
-	
+	{	Dla wybranych wartości sygnałów referencyjnych znaleziono rozmiary tranzystorów tak, aby zminimalizować błąd systematyczny. Wykonywano analizę czasową i obliczano błąd przetwarzania w stanie ustalonym. W efekcie zaproponowano następujące wartości elementów:
 	\begin{itemize}
 		\item $A_d = 10M$, $V_{off} = 0V$,
 		\item $L_0 = 3.6\mu$, $W_0 = 1.8\mu$,
 		\item $L_K = 0.18\mu$, $W_K = 0.5\mu$,
-		\item $R = 100 \Omega$.
+		\item $R = 10k \Omega$.
 	\end{itemize}
-	% Odpowiedz ukladu
-	{ Pomierzony błąd przy wszystkich kluczach włączonych: $(1.155 - 1.15495V) / 1mV = 5e-5 << 0.5 LSB$ }
-	\subsection{Błąd technologiczny przetwornika z prostym lustrem prądowym.}
+	{ Pomierzony błąd systematyczny wynosi: 
+		\begin{equation}
+		 \frac{1.155- 1.15495}{1m} \approx 5e-5 << 0.5 LSB
+		\end{equation} 
+	}
+	
+	\subsection{Błąd technologiczny przetwornika z prostym lustrem prądowym}
 	{	Zbadano wpływ długości tranzystora na dokładność przetwarzania przy pomocy analiz Monte Carlo. Wykonano 4 50-punktowe analizy dla następujących zestawów rozmiarów tranzystorów:
 		\begin{enumerate}
 			\item $L_0 = 3.6\mu$, $W_0 = 1.8\mu$,
@@ -505,11 +623,13 @@ S_i = 2^i \frac{W_0}{L_0}
 			\item $L_0 = 36\mu$, $W_0 = 1.8\mu$,
 			\item $L_0 = 80\mu$, $W_0 = 20\mu$.
 		\end{enumerate}
-	W tabeli ??? zebrano wyniki analiz. Są to kolejno: minimalne napięcie wyjściowe, maksymalne napięcie wyjściowe oraz błąd obliczony:
+	W tabeli \ref{tab:delta_simple} zebrano wyniki analiz - kolejno: minimalne napięcie wyjściowe, maksymalne napięcie wyjściowe oraz unormowany błąd obliczony:
 	$$
 	\delta = \frac{MAX(|1.155-V_{out,min}|,|1.155-V_{out,max}|)}{0.001}
 	$$
-		\begin{center}
+
+	\begin{table}[!ht]
+	\begin{center}				
 		\begin{tabular}{|c|c|c|c|c|}
 			\hline 
 			Zestaw & 1 & 2 & 3  & 4\\ 
@@ -521,10 +641,17 @@ S_i = 2^i \frac{W_0}{L_0}
 			$\delta$ [LSB]  & 9.27 & 2.11 & 1.09 & 0.49\\
 			\hline
 		\end{tabular} 
+	\caption{Błąd technologiczny przetwornika z prostym lustrem prądowym}
+	\label{tab:delta_simple}
 	\end{center}
-	Trzeba jeszcze zwiększyć $W_0$, bo napięcie $V_{DS}$ nie może przekroczyć 900mV.
+	\end{table}
+
+	\begin{wniosek}{Im większa długość tranzystorów w lustrze prądowym, tym mniejszy błąd technologiczny.}
+	\end{wniosek}
+
+	Warto zauważyć, że wzrostowi długości kanału tranzystora przy ustalonym prądzie towarzyszy wzrost napięcia nasycenia, co oznacza, że należy zwiększyć $W_0$, tak by napięcie wyjściowe wzmacniacza było większe od zera.
 	
-	\subsection{Błąd technologiczny przetwornika z kaskodowym lustrem prądowym.}
+	\subsection{Błąd technologiczny przetwornika z kaskodowym lustrem prądowym}
 	{	Zbadano wpływ długości tranzystora na dokładność przetwarzania przy pomocy analiz Monte Carlo. Wykonano 4 50-punktowe analizy dla następujących zestawów rozmiarów tranzystorów:
 	\begin{enumerate}
 		\item $L_0 = 3.6\mu$, $W_0 = 1.8\mu$,
@@ -532,7 +659,8 @@ S_i = 2^i \frac{W_0}{L_0}
 		\item $L_0 = 36\mu$, $W_0 = 1.8\mu$,
 		\item $L_0 = 50\mu$, $W_0 = 120\mu$.
 	\end{enumerate}
-
+	W tabeli \ref{tab:delta_cascode} zebrano wyniki analiz - kolejno: minimalne napięcie wyjściowe, maksymalne napięcie wyjściowe oraz unormowany błąd obliczony analogicznie jak dla prostego lustra prądowego.
+	\begin{table}[!ht]
 	\begin{center}
 		\begin{tabular}{|c|c|c|c|c|}
 			\hline 
@@ -545,13 +673,46 @@ S_i = 2^i \frac{W_0}{L_0}
 			$\delta$ [LSB]  & 7.2 & 1.61 & 0.82 & 0.45\\
 			\hline
 		\end{tabular} 
+	\caption{Błąd technologiczny przetwornika z kaskodowym lustrem prądowym}
+	\label{tab:delta_cascode}
 	\end{center}
-	Trzeba jeszcze zwiększyć $W_0$, bo napięcie $V_{DS}$ nie może przekroczyć 900mV.
-	\begin{wniosek}{Połączenie kaskodowe utrudnia projekt wzmacniacza i nie pozwala na redukcję wymiarów przetwornika.}
-	\end{wniosek}
+	\end{table}
 
-	\subsection{Analiza czasowa}
-	{ Wykonano analizę czasową dla jednoczesnego przełączenia wszystkich kluczy. Przebieg czasowy napięcia wyjściowego wykreślono na rysunku ???. Czas narastania jest zdecydowanie za wolny dla zadanego zegara. Zaproponowano bardziej skomplikowaną strukturę klucza, która pozwala na przekierowanie prądu. Topologia z pojedynczym kluczem jest zdecydowanie za wolna, ponieważ trzeba przeładować pojemność od drenu tranzystorów w lustrze prądowym. Zaproponowano bardziej złożony klucz, którego główną wadą jest, że niezależnie od tego, czy klucz jest włączony, czy nie, pobierana jest taka sama moc przez układ. }
+	Ze względu na wyższą rezystancję wyjściową lustro kaskodowe, wymagana długość kanału tranzystora jest niższa od długości kanału w układzie z prostym lustrem prądowym, jednakże zapewniając napięcie wyjściowe wzmacniacza większe od zera, wymagana szerokość kanału wzrasta do $120\mu$. Wykonano porównanie powierzchni przetwornika z prostym lustrem prądowym $A_{simple}$ i przetwornika z lustrem kaskodowym $A_{cascode}$:
+	\begin{equation}
+		A_{simple}  = 32*20*80 \mu^2 = 51 200  \mu^2 
+	\end{equation}
+	\begin{equation}
+		A_{cascode}  = 64*120*50 \mu^2 = 384 000 \mu^2
+	\end{equation}
+	Przetwornik z lustrem kaskodowym zajmuje 7.5 raza większą powierzchnię, więc w dalszej części pracy rozważa się wyłącznie przetwornik z prostym lustrem prądowym.
+	
+	\subsection{Wpływ temperatury na błąd technologiczny}
+	{	Zbadano wpływ temperatury na dokładność przetwarzania przy pomocy analiz Monte Carlo. Wykonano 50-punktową analizę dla wyznaczonych uprzednio rozmiarów tranzystorów: $L_0 = 80\mu$, $W_0 = 20\mu$. W tabeli \ref{tab:mc_temp} zebrano wyniki analiz - kolejno: minimalne napięcie wyjściowe, maksymalne napięcie wyjściowe oraz unormowany błąd.}
+	\begin{table}[!ht]
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline 
+			Temperatura & -40 & 0 & 70  & 120\\ 
+			\hline 
+			$V_{out,min}$ [V] & $1.15430$ & $1.15437$ & $1.15446$ & $1.15451$ \\ 
+			\hline
+			$V_{out,max}$ [V] & $1.15541$ & $1.15536$ & $1.15527$ & $1.15523$\\ 
+			\hline 
+			$\delta$ [LSB]  & 0.70 & 0.63 & 0.54 & 0.49\\
+			\hline
+		\end{tabular} 
+	\end{center}
+	\caption{Wyniki analizy Monte Carlo w zależności od temperatury}
+	\label{tab:mc_temp}
+	\end{table}
+	{	W szerokim zakresie temperatur błąd technologiczny przetwornika zmienia się o $0.2$LSB. }
+	\subsection{Czas ustalania przetwornika}
+	{	Wymagany czas ustalania przetwornika można oszacować na podstawie znajomości okresu wymaganego zegara. Każda zmiana stanu klucza powoduje, że napięcie wyjściowe przetwornika przechodzi przez stan przejściowy. Dla poprawnego działania przetwornika należy tak dobrać parametry, aby stan ustalony był osiągany przed nadejściem kolejnej próbki, tzn. czas ustalania musi być mniejszy niż okres zegara. W projektowanym przetworniku okres sygnału zegarowego wynosi $250ns$.
+		\begin{equation}
+		t_{settle} < T_{clk} = 250ns
+		\end{equation}
+	{ Wykonano analizę czasową dla jednoczesnego przełączenia wszystkich kluczy, co odpowiada zmianie wejściowego słowa cyfrowego z $0x00$ do $0xFF$. Czas ustalania układu z kluczem zrealizowanym jako pojedynczy tranzystor jest dłuższy niż $2.5ms$, co oznacza, że ten klucz nie nadaje się do wykorzystania w projektowanym przetworniku. Zaproponowano klucz, składający się z dwóch tranzystorów $K_n$ i $K_p$, którego schemat przedstawiono na rysunku \ref{sch:key}. Na schemacie pokazano również tranzystor $M$, który jest częścią lustra prądowego przetwornika. Bramki obu tranzystorów $K_n$ i $K_p$ są polaryzowane wspólnym napięciem $V_{K}$. Dren tranzystora $K_n$ jest połączony z odwracającym wejściem wyjściowego wzmacniacza operacyjnego, a źródło tranzystora $K_p$ jest połączone z odwracającym wejściem wzmacniacza operacyjnego, którego zadaniem jest dostarczanie napięcia referencyjnego. Mówi się, że klucz jest wyłączony, gdy potencjał $V_{K}$ jest bliski zeru. Wtedy tranzystor $K_n$ jest wyłączony, a tranzystor $K_p$ jest włączony. Klucz jest włączony, gdy potencjał $V_{K}$ jest bliski potencjałowi zasilania. Wtedy tranzystor $K_n$ jest włączony, a tranzystor $K_p$ jest wyłączony. Niezależnie od stanu klucza, przez tranzystor $M$ w lustrze prądowym płynie ten sam prąd, co oznacza, że przy przełączaniu klucza pojemności pasożytnicze tranzystora $M$ nie są przeładowywane i klucz działa szybko. Czas ustalania przetwornika z kluczem 2-tranzystorowym jest mniejszy niż $10ns$.}
 	
 	\begin{figure}[!htb]
 		\centering
@@ -576,57 +737,14 @@ S_i = 2^i \frac{W_0}{L_0}
 			;
 			
 		\end{circuitikz}
-		\caption{Para różnicowa jako klucz.}
-	\end{figure}
-	{	Odpowiedzi skokowe ze zredukowanymi pikami, występującymi podczas przełączania dla zwiększenia czytelności.}
-	\begin{figure}[!ht]
-	\centering
-	\begin{tikzpicture}
-	\begin{axis}[
-	width=0.6\linewidth, % Scale the plot to \linewidth
-	grid=major, % Display a grid
-	grid style={dashed,gray!30}, % Set the style
-	xlabel=$t$, % Set the labels
-	ylabel=$V_{out}$,
-	x unit=\si{s}, % Set the respective units
-	y unit=\si{\volt},
-	ymin = 0.8,
-	ymax = 1.4,
-	legend style={at={(0.5,-0.2)},anchor=north}, % Put the legend below the plot
-	x tick label style={rotate=90,anchor=east} % Display labels sideways
-	]
-	\addplot[loosely dashed, line width = 1.5pt, red] table [x={X}, y={Y}, col sep=comma] {\detokenize{1_tran_simple.csv}};
-	\end{axis}
-	\end{tikzpicture}
-	\caption{Odpowiedź czasowa na pobudzenie skokiem układu z prostym kluczem}
-	\end{figure}
-	
-	
-	\begin{figure}[!ht]
-	\centering
-	\begin{tikzpicture}
-	\begin{axis}[
-	width=0.6\linewidth, % Scale the plot to \linewidth
-	grid=major, % Display a grid
-	grid style={dashed,gray!30}, % Set the style
-	xlabel=$t$, % Set the labels
-	ylabel=$V_{out}$,
-	x unit=\si{s}, % Set the respective units
-	y unit=\si{\volt},
-	ymin = 0.8,
-	ymax = 1.2,
-	legend style={at={(0.5,-0.2)},anchor=north}, % Put the legend below the plot
-	x tick label style={rotate=90,anchor=east} % Display labels sideways
-	]
-	\addplot[loosely dashed, line width = 1.5pt, red] table [x={X}, y={Y}, col sep=comma] {\detokenize{1_tran.csv}};
-	\end{axis}
-	\end{tikzpicture}
-	\caption{Odpowiedź czasowa na pobudzenie skokiem układu z szybkim kluczem.}
+		\caption{Klucz złożony z dwóch tranzystorów}
+		\label{sch:key}
 	\end{figure}
 
 	\section{Projekt wzmacniacza operacyjnego}
 	\subsection{Wpływ wzmocnienia różnicowego wzmacniacza na błąd technologiczny}
-	{	Konfiguracja 0.5LSB: $L_0 = 80\mu$, $W_0 = 20\mu$.	}
+	{	Zbadano wpływ wzmocnienia różnicowego na dokładność przetwarzania przy pomocy analiz Monte Carlo. Wykonano 50-punktową analizę dla wyznaczonych uprzednio rozmiarów tranzystorów: $L_0 = 80\mu$, $W_0 = 20\mu$.}
+	\begin{table}[!ht]
 	\begin{center}
 		\begin{tabular}{|c|c|c|c|}
 			\hline 
@@ -640,7 +758,9 @@ S_i = 2^i \frac{W_0}{L_0}
 			\hline
 		\end{tabular} 
 	\end{center}
-	\begin{wniosek}{Wzmocnienie różnicowe wzmacniacza operacyjnego powinno być większe niż 10000.}
+	\caption{Wyniki analizy Monte Carlo w zależności od wzmocnienia różnicowego wzmacniacza operacyjnego}
+	\end{table}
+	\begin{wniosek}{Wzmocnienie różnicowe wzmacniacza operacyjnego powinno być większe niż 10000, aby zapewnić błąd przetwarzania na poziomie $0.5$ LSB.}
 	\end{wniosek}
 	\subsection{Wpływ wejściowego napięcia niezrównoważenia na błąd technologiczny}
 
@@ -649,15 +769,15 @@ S_i = 2^i \frac{W_0}{L_0}
 	\subsubsection{Zakres wspólnego napięcia wejściowego}
 	{	Zakres wspólnego napięcia wejściowego jest związany z doborem napięcia referencyjnego.}
 	\subsubsection{Zakres napięcia wyjściowego}
-	{	Wyznaczenie dolnego zakresu napięcia wyjściowego wzmacniacza wymaga przeprowadzenia następującego rozumowania. Napięcie dren-źródło $V_{DS}$ tranzystora M1 jest proporcjonalne do prądu referencyjnego $I_{ref}$, więc projektant dobierając prąd referencyjny musi zwrócić uwagę na to, że napięcie wyjściowe wzmacniacza będzie równe:
+	{	Wyznaczenie dolnego zakresu napięcia wyjściowego wzmacniacza wymaga przeprowadzenia następującego rozumowania. Napięcie dren-źródło $V_{DS,0}$ tranzystora M0 jest proporcjonalne do prądu referencyjnego $I_{ref}$, więc projektant dobierając prąd referencyjny musi zwrócić uwagę na to, że napięcie wyjściowe wzmacniacza będzie równe:
 		\begin{equation}
-			V_{out,A1} = V_{ref} - V_{DS}
+			V_{out,A1} = V_{ref} - V_{DS,0}
 		\end{equation} 
 	\begin{przyklad}{W układzie lustra prądowego wybrano napięcie referencyjne jako $V_{ref} = 900mV$. Dla tranzystora o wymiarach $W_0=20\mu$, $L_0=80\mu$ i prądu drenu $I_{D}=1.6\mu$, ile wynosi potencjał wyjściowy wzmacniacza operacyjnego?}
 		
 	{Korzystając z powyższego równania:
 		\begin{equation}
-			V_{out,A1} = V_{ref} - V_{DS} = V_{ref} - \sqrt{\frac{2I}{\beta}} +V_{TH,n} \approx 328 mV
+			V_{out,A1} = V_{ref} - V_{DS,0} = V_{ref} - \sqrt{\frac{2I}{\beta}} +V_{TH,n} \approx 328 mV
 		\end{equation}
 	Z symulacji uzyskano wynik:
 		\begin{equation}
@@ -680,12 +800,7 @@ S_i = 2^i \frac{W_0}{L_0}
 	\end{equation}	
 	}
 	\end{przyklad}}
-	\subsubsection{Czas ustalania}
-	{	Czas ustalania przetwornika można oszacować na podstawie znajomości okresu wymaganego zegara. Każda zmiana stanu klucza powoduje, że napięcie wyjściowe przetwornika przechodzi przez stan przejściowy. Dla bezbłędnego działania przetwornika należy tak dobrać parametry, aby stan ustalony był osiągany przed nadejściem kolejnej próbki, tzn. czas ustalania musi być mniejszy niż okres zegara:
-	\begin{equation}
-		t_{settle} < T_{clk}
-	\end{equation}
-	Warto zwrócić uwagę, że czasy ustalania dla przejść pomiędzy różnymi słowami cyfrowymi są w ogólności różne.  
+
 	\subsection{Wzmacniacz}
 	{	Zaprojektowany wzmacniacz operacyjny to prosty, dwustopniowy wzmacniacz, znany z literatury. Metodologia projektowania została szczegółowo opisana w \cite{cmosanal}, dlatego w tej pracy przytoczono tylko rezultaty. Zwraca się uwagę, że obciążenie pary różnicowej jest niesymetryczne, co powoduje, że wzmacniacz charakteryzuje się niezerowym systematycznym wejściowym napięciem niezrównoważenia. }
 	{	Rozmiary tranzystorów zaprojektowanego wzmacniacza operacyjnego przy długości kanału równej $L=900n$. 
@@ -728,17 +843,6 @@ S_i = 2^i \frac{W_0}{L_0}
 
 		\end{itemize}
 	}
-
-	\section{Podsumowanie projektu wstępnego}
-	{ Końcowy schemat zaprojektowanego przetwornika przedstawiono:}
-	\begin{wniosek}{Zwiększanie prądu referencyjnego oznacza większy $V_{DS,sat}$, co z kolei oznacza, że wyjście wzmacniacza $A_1$ musi się obniżyć mocniej. To oznacza trudniejsze wymaganie na zakres napięć wyjściowych.}
-	\end{wniosek}
-	\begin{wniosek}{Zwiększanie napięcia referencyjnego, aby skompensować niskie wyjście wzmacniacza $A_1$ oznacza, że wyjście wzmacniacza $A_2$ będzie musiało z kolei pójść mocniej w górę.}
-	\end{wniosek}
-	\begin{wniosek}{Segmentowe połączenie pozwala nie tylko zmniejszyć minimalne L0, ale też łączną liczbę tranzystorów, potrzebnych do wykonania zadania.}
-	\end{wniosek}
-	\begin{wniosek}{}
-	\end{wniosek}
 
 	\chapter{Pomiary parametrów konwertera}
 	{ Do przeprowadzenia pomiarów konwertera przygotowano modele w Verilog-AMS, których szczegółowy opis znajduje sie w dodatku do pracy:}
@@ -796,31 +900,33 @@ S_i = 2^i \frac{W_0}{L_0}
 	\section{Charakterystyka przetwarzania}
 
 	\chapter{Projekt fizyczny}
-	{	W tym rozdziale przedstawiono wykorzystane koncepcje, które pozwalają na zredukowanie błędów technologicznych i lepsze dopasowanie elementów.}
-	\section{Topografia luster prądowych.}
-	{	Projektując topografię luster prądowych podążano za następującymi regułami:
-		\begin{enumerate}
-			\item każdy tranzystor powinien mieć identyczne lokalne otoczenie,
-			\item każdy tranzystor jest otoczony pierścieniem ochronnym
-		\end{enumerate}
-	}
-	\section{Topografia wzmacniacza operacyjnego}
-	{	\begin{enumerate}
-			\item Para różnicowa została zrealizowana jako common-centroid
-			\item Lustra prądowe zostały zrealizowane jako równolegle połączone tranzystory.
-	\end{enumerate}}
-	\section{Elementy pasywne}
-	\subsection{Pojemność kompensująca}
-	{	Pojemność kompensująca została zrealizowana jako kondensator ??? poly-poly???.}
-	{	Rezystor w sprzężeniu zwrotnym został zrealizowany jako poly-resistor???}
-	
-	\chapter{Pomiary parametrów konwertera po ekstrakcji}
-	{	W tym rozdziale zebrano wyniki powtórzonych symulacji dla układu po ekstrakcji elementów pasożytniczych.}
-	\section{Pomiar nieliniowości całkowej INL}
-	\section{Pomiar nieliniowości różniczkowej DNL}
-	\section{Pomiar zniekształceń harmonicznych}
-	\section{Charakterystyka przetwarzania}
+	{	W tym rozdziale przedstawiono wykorzystane koncepcje, które pozwalają na zredukowanie błędów technologicznych i lepsze dopasowanie elementów oraz przeanalizowano wpływ dokładności wykonania rezystora na błąd przetwornika.}
 
+	\section{Techniki poprawiające dopasowanie}
+	{	W pracy wykorzystano następujące sposoby tworzenia topografii układu, które zmniejszają niedopasowanie elementów i błędy procesu technologicznego:
+		\begin{enumerate}
+			\item topografia ze środkiem symetrii (ang. common-centroid). Tę metodę można stosować z powodzeniem dla symetrycznych struktur, np. pary różnicowej. Wymaga ona rozłożenia elementów wokół środka symetrii, co powoduje, że gradienty zmian parametrów tranzystorów uśredniają się.
+			\item struktury puste (ang. dummy) są to elementy podłączone do zerowego potencjału, przez które nie płynie prąd. Zwiększają one dopasowanie elementów struktury poprzez zapewnienie elementom skrajnym otoczenia identycznego jak elementom środkowym struktury.
+			\item pierścienie ochronne zapewniają dodatkową polaryzację podłoża oraz fizycznie oddzielają struktury, redukując poziom promieniowania cieplnego, szumów i zakłóceń.
+			\item jednakowa orientacja tranzystorów układu - wszystkie tranzystory winny być umieszczone w pionie bądź poziomie.
+			\item stosowanie dużych rozmiarów tranzystorów.
+		\end{enumerate}
+
+	
+	\section{Wpływ niedokładności wykonania rezystora na działanie układu}
+	{	Analizując schemat przetwornika, można zauważyć, że napięcie wyjściowe zależy od wartości rezystora $R$ w pętli sprzężenia zwrotnego wyjściowego wzmacniacza operacyjnego:
+		\begin{equation}
+			V_{out} =  V_{ref} + 255 R I_{ref}
+		\end{equation}
+		W technologii CMOS rezystor cechuje się bezwzględną niedokładnością wykonania na poziomie 30\%, co oznacza, że pełny zakres sygnału wyjściowego  miałby ten sam błąd. Redukcję błędu można osiągnąć pod warunkiem, że schemat układu zostanie zmodyfikowany tak, by sygnał wyjściowy przetwornika zależał od stosunku dwóch rezystancji - błąd względny wykonania rezystancji jest znacznie mniejszy. 
+		Na schemacie idealne źródła prądowe, generujące prądy referencyjne, można zastąpić źródłami napięciowymi i rezystorem. Zakładając, że rezystancje wszystkich rezystorów w przetworniku mają tę samą wartość $R=10k \Omega$, wyliczono wartości napięć referencyjnych:
+		\begin{equation}
+			V_{ref,1} = V_{ref} + RI_{ref} =900m +  10k \cdot 100n = 901mV
+		\end{equation}
+		\begin{equation}
+			V_{ref,1} = V_{ref} + 16RI_{ref} = 900m + 10k \cdot 1600n = 916mV
+		\end{equation}		
+		}
 	\chapter{Podsumowanie}
 	{	W tym rozdziale}
 	\section{Rozmiar układu, liczba tranzystorów}
@@ -829,6 +935,8 @@ S_i = 2^i \frac{W_0}{L_0}
 
 
 \begin{thebibliography}{9}
+	\label{sec:bib}
+	\addcontentsline{toc}{chapter}{\nameref{sec:bib}}
 	%%moje z knovela
 	\bibitem{integconv} 
 	Jespers, Paul G.A.. (2001). 
@@ -850,20 +958,6 @@ S_i = 2^i \frac{W_0}{L_0}
 	\textit{Scalone przetworniki analogowo-cyfrowe i cyfrowo-analogowe,}
 	WKŁ 2001
 	
-	\bibitem{bdgp_1}
-	Design of an improved Bandgap Reference in
-	180nm CMOS Process Technology
-	
-	\bibitem{bdgp_2}
-	Design and implementation of curvature corrected
-	bandgap voltage reference - 1.1V using 180nm Technology
-	
-	\bibitem{ams_proc_params}
-	$0.18\mu m$ HV CMOS Process Parameters, Rev. 3.0, AMS AG
-	
-	\bibitem{ams_match_params}
-	$0.18\mu m$ HV CMOS Matching Parameters, Rev. 1.0, AMS AG
-	
 \end{thebibliography}
 	\listoffigures
 
@@ -871,8 +965,61 @@ S_i = 2^i \frac{W_0}{L_0}
 
 	\appendix
 	%insert chapters	
+	\chapter{Schemat zaprojektowanego przetwornika}
+	
+	
+	\begin{sidewaysfigure}[!htb]
+		\centering
+		\begin{circuitikz}[scale = 0.6]
+			%		\draw [gray, color=gray] (0,-1) grid (20,10);
+			\draw [color=black, thick]
+			% Devices
+			(2, 2) node[op amp, rotate = 270] (opamp) {$A_1$}
+			(18, 7) node[op amp] (opamp2) {$A_2$}
+			(4, 1) node[nmos, rotate =180, label={ [centered,xshift=-10, yshift = 10] {$M_0$} } ](m0){}
+			(m0.D) to [short] (4,-0.5);
+			
+			\foreach \x in {1,...,4}
+			{
+				\pgfmathsetmacro{\offsetx}{int(3*\x+5)};
+				\draw [color=black, thick]
+				(\offsetx,1) node[nmos, label={ [centered,xshift=10, yshift = 10] {$M_\x$} } ](m\x){}
+				(\offsetx,3) node[nmos, label={ [centered,xshift=10, yshift = 10] {$K_\x$} } ](k\x){}
+				(k\x.D) to [short] (\offsetx,5)
+				(m\x.S) to [short] (\offsetx,-0.5)
+				;
+			}
+			\draw[color=black, thick]
+			% Ports
+			(opamp.+) to [short, -o](1.2,5)
+			(opamp.-) to [short](2.7,4)
+			(opamp.out) to [short](2,-0.5)
+			(2,-0.5) to [short](17,-0.5)
+			(5,1) to [short](16,1)
+			(2.7,4) to [short](4,4)
+			(4,4) to [short](4,2)
+			(1.5,6) node[]{\large{\textbf{$V_{ref}$}}}
+			(8,5) to [short](17,5)
+			(12,5) to [short](12,7.7)
+			(12,7.7) to[short](opamp2.-)
+			(15,6.2) to[short,o-](opamp2.+)
+			(14,6.2) node[]{\large{\textbf{$V_{ref}$}}}
+			(14,7.7) to [short] (14,10)
+			(14,10) to[R=$R$] (20,10)
+			(20,10) to[short](20,7)
+			(20,7) to[short](opamp2.out)
+			(20,7) to[short,-o](21,7)
+			(21,8) node[]{\large{\textbf{$V_{out}$}}}
+			(4,9) to [I=${I_{ref}}$] (4,4)
+			(4,8) node[ground, rotate = 180, label={ [centered,xshift=20, yshift = 5] {$GND$}}](4,10){}
+			;		
+		\end{circuitikz}
+		\label{8bitca}
+		\caption{8-bitowy przetwornik C/A.}
+	\end{sidewaysfigure}
+
 .	\chapter{Modelowanie z użyciem Verilog-AMS}
-	{	Na potrzeby pracy opracowano kilka opisów behawioralnych urządzeń w języku Verilog-AMS. Poniżej przytoczono ich kod z krótkim komentarzem.}
+	{	Na potrzeby pracy opracowano kilka opisów behawioralnych urządzeń w języku Verilog-AMS. Poniżej przytoczono kody źródłowe z krótkim komentarzem.}
 	\section{Idealny 8-bit DAC.}
 	\lstinputlisting[language=verilog]{\detokenize{ams_dac_ideal_8bit.vams}}
 	\section{Idealny 10-bit ADC.}
